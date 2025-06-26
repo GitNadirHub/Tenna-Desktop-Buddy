@@ -2,6 +2,8 @@
 #include <Windows.h>
 #include <SFML/audio.hpp>
 #include "menu.hpp"
+#include "intro.hpp"
+#include "animator.hpp"
 #include <iostream>
 
 using namespace sf;
@@ -38,19 +40,6 @@ struct Tenna
 
 Tenna tenna(t_idle);
 
-void animateSprite(int frameCount, int frameWidth, int frameHeight, float animationSpeed, sf::Time elapsedTime)
-{ //makes it gifable
-    int currentFrame = (int)(elapsedTime.asSeconds() / animationSpeed) % frameCount;
-    tenna.sprite.setTextureRect(sf::IntRect({ currentFrame * frameWidth, 0 }, { frameWidth, frameHeight }));
-}
-
-int animateExplode(int frameCount, int frameWidth, int frameHeight, float animationSpeed, sf::Time elapsedTime)
-{
-    int currentFrame = (int)(elapsedTime.asSeconds() / animationSpeed);
-    tenna.sprite.setTextureRect(sf::IntRect({ currentFrame * frameWidth, 0 }, { frameWidth, frameHeight }));
-	return currentFrame;
-}
-
 Clock animationClock;
 
 int main()
@@ -58,11 +47,14 @@ int main()
     auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "Tenna :D", sf::Style::None);
     window.setFramerateLimit(144);
 
+
     HWND hwnd = window.getNativeHandle(); 
     SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE); //makes it on top of anything
     LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
     SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED);
     SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY); 
+
+    drawIntro(window);
 
     float tennaWidth = tenna.sprite.getTexture().getSize().x;
     float tennaHeight = tenna.sprite.getTexture().getSize().y;
@@ -200,11 +192,11 @@ int main()
             break;
         case state_tpose:
 			tenna.sprite.setTexture(t_tpose); //second argument resets the texture rect
-            animateSprite(15, 131, 149, 0.1, elapsed);
+            animateLooped(15, 131, 149, 0.1, elapsed, tenna.sprite);
             break;
         case explode:
             tenna.sprite.setTexture(t_explode);
-            currentFrame = animateExplode(20, 240, 426, 0.1, elapsed);
+            currentFrame = animateIndexed(20, 240, 426, 0.1, elapsed, tenna.sprite);
             if (currentFrame == 13)
             {
 				snd_boom.play();
