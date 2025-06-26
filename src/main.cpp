@@ -11,12 +11,16 @@ using namespace sf;
 Texture t_idle("res/img/idle.png");
 Texture t_tpose("res/img/tpose.png");
 Texture t_explode("res/img/explode.png");
+Texture t_pluey("res/img/pluey.png");
 
 SoundBuffer buf_snd_slide("res/snd/slide.wav");
 Sound snd_slide(buf_snd_slide);
 
 SoundBuffer buf_snd_boom("res/snd/boom.wav");
 Sound snd_boom(buf_snd_boom);
+
+SoundBuffer buf_snd_friend_inside_me("res/snd/friend_inside_me.wav");
+Sound snd_friend_inside_me(buf_snd_friend_inside_me);
 
 Font font("res/fonts/deltarune.ttf");
 
@@ -38,9 +42,13 @@ struct Tenna
     }
 };
 
+Sprite plueySprite(t_pluey);
+
 Tenna tenna(t_idle);
 
 Clock animationClock;
+
+bool plueyActive = false;
 
 int main()
 {
@@ -76,6 +84,7 @@ int main()
         { "Close", Close },
         {"Idle", MenuIdle},
         {"T-Pose", Tpose},
+        {"Pluey", Pluey}
     };
 
 	float scaleCorrection = 1.f;
@@ -128,6 +137,10 @@ int main()
                     break;
                 case MenuIdle:
                     tenna.state = idle;
+                    break;
+				case Pluey: 
+                    plueyActive = !plueyActive;
+                    snd_friend_inside_me.play();
                     break;
                 }
             }
@@ -223,7 +236,16 @@ int main()
 		window.draw(tenna.sprite);
         if (menu.isOpen)
             menu.draw(window, font);
-
+        if (plueyActive)
+        {
+            float plueyX = plueySprite.getPosition().x + sin(Mouse::getPosition(window).x);
+			float plueyY = plueySprite.getPosition().y + sin(Mouse::getPosition(window).y);
+            plueySprite.setPosition({plueyX, plueyY});
+            window.draw(plueySprite);
+            int t = elapsed.asSeconds();
+            if (t % 17 == 0)
+                plueySprite.setPosition(tenna.position), snd_friend_inside_me.play();
+		}
         window.display();
     }
 }

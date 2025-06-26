@@ -6,7 +6,8 @@ enum MenuAction {
     None,
     Close,
     Tpose,
-    MenuIdle
+    MenuIdle,
+    Pluey
 };
 
 struct MenuItem {
