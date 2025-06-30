@@ -12,7 +12,7 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(main src/main.cpp "src/menu.cpp" "src/intro.cpp" "src/animator.cpp" "src/resources.cpp")
+add_executable(main src/main.cpp "src/menu.cpp" "src/intro.cpp" "src/animator.cpp" "src/resources.cpp" "src/dialogue.cpp")
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)
 target_link_libraries(main PRIVATE SFML::Audio)

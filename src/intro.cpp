@@ -34,10 +34,21 @@ void drawIntro(sf::RenderWindow &window)
 
 	while (window.isOpen()) //INTRO
 	{
+
+		//DEBUG SKIP INTRO
+		if (Keyboard::isKeyPressed(Keyboard::Key::Escape))
+		{
+			snd_tv_time.stop();
+			return;
+		}
+		//DEBUG SKIP INTRO
+
+
+
 		auto elapsed = animClock.getElapsedTime();
 		
 		int index = animateIndexed(chunkFrameCount, 426, 240, 0.07, elapsed, tv_time);
-		if (index == chunkFrameCount)
+		if (index == chunkFrameCount-1)
 		{
 			chunk++, index = 0;
 			animClock.restart();

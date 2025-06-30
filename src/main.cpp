@@ -5,6 +5,8 @@
 #include "intro.hpp"
 #include "animator.hpp"
 #include "resources.hpp"
+#include "dialogue.hpp"
+
 
 using namespace sf;
 
@@ -47,6 +49,9 @@ Menu menu;
 
 void initialize(RenderWindow &window)
 {
+
+    initializeDialogue();
+
     window.setFramerateLimit(144);
 
     HWND hwnd = window.getNativeHandle();
@@ -126,6 +131,7 @@ void draw(RenderWindow& window)
             snd_friend_inside_me.play();
         }
     }
+	dialogueDraw(window, tenna.position);
     window.display();
 }
 
