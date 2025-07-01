@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <random>
 using namespace sf;
 using namespace std;
 
@@ -34,7 +35,7 @@ vector<string> strings = {"Hello world!",
 "Don't touch that dial! \nAnd don't stop those smiles! \n",
 "I'm just a toyyyy toooo youuuu my loveeeeeeeeee\n",
 "MIKE, PLAY THE VHS!!! \nMike???",
-"IT'S NOW TIME FOR OUT FEATURE PRESENTATION!\n",
+"IT'S NOW TIME FOR OUR FEATURE PRESENTATION!\n",
 "COMING STRAIGHT \nFROM YOUR HOUSE!",
 "COMING STRAIGHT \nFROM *YOUR* HOUSE!",
 "COMING! \n",
@@ -55,19 +56,46 @@ vector<string> strings = {"Hello world!",
 "I'm probably looking away \nfrom my words, \nam I not, Kris?",
 "\n\n\nThis is LONG\n\n\n",
 "\nTHIS \nTEXTBOX\nIS\n\nTOO\nLONG\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
-"I have been \nwriting these \nfor quite a while now \nsend help. "
+"I have been \nwriting these \nfor quite a while now \nsend help. ",
+"Help? \nI don't need help, \nI need a new job!",
+"I think I have \nseen this one before.\n",
+"Have you ever \nseen a dog \nwith a gun?",
+"Have you ever \nmet that dog? \nHe's a menace, Kris!\nDon't trust him!",
+"Undertale? \nI hardly know her!\n",
+"Deltarune? \nI hardly know her!\n",
+"Kris, \nwill I become a Big Shot?\nThat mailman promised...",
+"So... \nI guess I have to \nwrite a lot of these, huh?\n",
+"So... \nYou... \nCome here often?\n",
+"Hey, Kris! \nDid you know that \nI can read your mind? \nI can see your thoughts, \nyour dreams, your desires... \nI can even see your \nsearch history! \nFOR LEGAL REASONS, \nI CAN'T TELL YOU \nWHAT I SEE IN YOUR MIND.\n",
+"Entertainment!",
+"Entertainment! \n",
+"Don't touch that dial! \nAnd don't stop those smiles! \n",
+"KRIS?!\nLOOK AT THESE \nRATINGS! \nTHEY'RE OFF THE CHARTS!\n",
+"Without my TV, \nI’m lost in transmission.",
+"What?!\nI'd do wordart,\nbut the budget was\nused up on the\nvoice acting!",
+"Wordart? \nI hardly know her!\n",
+"My TV is not a great\nlistener, \nbut it sure is a great talker!",
+"Ralsei plush! Fill\nhim with liquid,\nthrow him against the\nwall!",
+"Darn!! I\novercooked the\nwater!!",
+"Oops!! No!!\nI keep breaking\nthe eggs!!"
 };
 
 static Font font("res/fonts/sb.ttf");
 Text dialogueText(font);
 
-int i = strings.size()-1;
+//int i = strings.size()-1; 
+int i = 0;
 
 void initializeDialogue()
 {
+	strings.push_back("T his message has\nthe chance of \nappearing " + to_string(100.f / strings.size()+1) + "% \nof the time.\n");
+
+	shuffle(strings.begin(), strings.end(), std::default_random_engine());
 	dialogueText.setString(strings[0]);
 	dialogueText.setCharacterSize(8);
 	dialogueText.setFillColor(Color::Color(1, 1, 1, 255));
+
+
 }
 
 bool keyPressedLastFrame = false;
@@ -92,10 +120,13 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 	{
 		if (!keyPressedLastFrame)
 		{
+			elapsed = 0;
 			i++;
 			if (i >= strings.size())
-			elapsed = 0;
-			dialogueClock.restart();
+			{
+				i = 0;
+			}
+			keyPressedLastFrame = true;
 		}
 	}
 	else
@@ -117,8 +148,8 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 	else if (snd_tenna_talk.getStatus()!=Sound::Status::Playing)
 		snd_tenna_talk.play();
 
-	if (slowDownFactor > 1.f)
-		snd_tenna_talk.pause();
+	//if (slowDownFactor > 1.f)
+	//	snd_tenna_talk.pause();
 
 
 	Text invisibleText = dialogueText;
@@ -142,10 +173,14 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 
 
 	RectangleShape background({ width + 15.f, height +15.f });
+	RectangleShape background2({ width + 30.f, height });
 
 	background.setOrigin({background.getSize().x, 0});
-	background.setPosition({ dialogueText.getPosition().x+5, dialogueText.getPosition().y - 15.f });
+	background2.setOrigin(background.getOrigin());
+	background.setPosition({ dialogueText.getPosition().x+5.f, dialogueText.getPosition().y - 15.f });
+	background2.setPosition({background.getPosition().x - 7.f, background.getPosition().y+7});
 
 	window.draw(background);
+	window.draw(background2);
 	window.draw(dialogueText);
 }
