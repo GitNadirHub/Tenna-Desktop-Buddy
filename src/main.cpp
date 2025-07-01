@@ -6,7 +6,7 @@
 #include "animator.hpp"
 #include "resources.hpp"
 #include "dialogue.hpp"
-
+#include <random>
 
 using namespace sf;
 
@@ -74,11 +74,46 @@ void initialize(RenderWindow &window)
 
 }
 
+
+int randomRange(int lower, int higher)
+{
+    static std::random_device rd;
+    static std::mt19937 rng(rd());
+    std::uniform_int_distribution<int> dist(lower, higher);
+    return dist(rng);
+}
+
+int dialogueAppearTime=randomRange(1, 1); //first appearance is always quicker
+
+bool handleDialogueLogic()
+{
+    static Clock dialogueClock;
+    int elapsedTime = dialogueClock.getElapsedTime().asSeconds();
+    static int dialogueEndTime = dialogueAppearTime + 10;
+
+    if (elapsedTime > dialogueEndTime)
+    {
+        dialogueClock.restart();
+        dialogueAppearTime = randomRange(15, 60);
+        dialogueEndTime = dialogueAppearTime + 10;
+        dialogueLineIndex++;
+        return false;
+    }
+
+    if (elapsedTime > dialogueAppearTime)
+    {
+        return true;
+    }
+    return false;
+}
+
 void draw(RenderWindow& window)
 {
     Time elapsed = animationClock.getElapsedTime();
 
     int currentFrame;
+
+    bool showDialogue = handleDialogueLogic();
 
     switch (tenna.state)
     {
@@ -131,7 +166,8 @@ void draw(RenderWindow& window)
             snd_friend_inside_me.play();
         }
     }
-	dialogueDraw(window, tenna.position);
+    if (showDialogue)
+	    dialogueDraw(window, tenna.position);
     window.display();
 }
 

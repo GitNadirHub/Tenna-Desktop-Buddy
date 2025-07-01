@@ -154,7 +154,7 @@ vector<string> strings = {"Hello world!",
 "I hum when Im angry.\nWhich is always.",
 "Don't put a magnet near me.",
 "I EAT REMOTES\nFOR BREAKFAST.",
-"My screen curves\nlike your spine.\nSERIOUSLY, CORRECT YOUR POSTURE!",
+"My screen curves like your spine.\nSERIOUSLY, CORRECT YOUR POSTURE!",
 "WARNING:\nI MAY CONTAIN LEAD\nAND UNHINGED ENERGY.",
 "You call it outdated.\nI call it VINTAGE RAGE.",
 "I broadcast at 480i of FURY.",
@@ -180,14 +180,16 @@ vector<string> strings = {"Hello world!",
 
 };
 
+int dialogueLineIndex = 0;
+
 static Font font("res/fonts/sb.ttf");
 Text dialogueText(font);
 
 //int i = strings.size()-1; 
-int i = 0;
 
 void initializeDialogue()
 {
+	strings.push_back("Did you know?\nThis game holds exactly\n" + to_string(strings.size()+2) + " lines.\nI'm one of them.");
 	strings.push_back("This message has\nthe chance of \nappearing " + to_string(100.f /( strings.size()+1)) + "% \nof the time.\n");
 	
 	default_random_engine engineRandom;
@@ -214,10 +216,18 @@ bool isPunctuation(char c)
 		return true;
 	return false;
 }
+float elapsed=0;
+
 
 void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 {
-	float elapsed = dialogueClock.restart().asMilliseconds();
+	elapsed = dialogueClock.restart().asMilliseconds();
+
+	static int lastLineIndex = -1; //elapsed does not correctly reset, so we forcefully reset it as shown below
+
+	if (dialogueLineIndex != lastLineIndex)
+		elapsed = 0;
+
 
 	//DEBUG
 	if (Keyboard::isKeyPressed(Keyboard::Key::Space))
@@ -225,10 +235,10 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 		if (!keyPressedLastFrame)
 		{
 			elapsed = 0;
-			i++;
-			if (i >= strings.size())
+			dialogueLineIndex++;
+			if (dialogueLineIndex >= strings.size())
 			{
-				i = 0;
+				dialogueLineIndex = 0;
 			}
 			keyPressedLastFrame = true;
 		}
@@ -239,16 +249,16 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 
 
 
-	float slowDownFactor = 1.f + ((strings[i][textIndex] == '\n') * 5.f) + 
-								 (isPunctuation(strings[i][textIndex]) && !isPunctuation(strings[i][textIndex+1]) * 15.f);
+	float slowDownFactor = 1.f + ((strings[dialogueLineIndex][textIndex] == '\n') * 5.f) +
+								 (isPunctuation(strings[dialogueLineIndex][textIndex]) && !isPunctuation(strings[dialogueLineIndex][textIndex+1]) * 15.f);
 
 	if (elapsed == 0.f)
 		textIndex = 0;
 	else
 		textIndex = max(textIndex, textIndex + elapsed/(25.f*slowDownFactor));
 
-	if (textIndex >= strings[i].size())
-		textIndex = strings[i].size(), snd_tenna_talk.pause();
+	if (textIndex >= strings[dialogueLineIndex].size())
+		textIndex = strings[dialogueLineIndex].size(), snd_tenna_talk.pause();
 	else if (snd_tenna_talk.getStatus()!=Sound::Status::Playing)
 		snd_tenna_talk.play();
 
@@ -258,9 +268,9 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 
 	Text invisibleText = dialogueText;
 
-	string loadedText = strings[i].substr(0, textIndex);
+	string loadedText = strings[dialogueLineIndex].substr(0, textIndex);
 
-	invisibleText.setString(strings[i]); //the final text size
+	invisibleText.setString(strings[dialogueLineIndex]); //the final text size
 	dialogueText.setString(loadedText);
 
 	float width = invisibleText.getGlobalBounds().size.x;
@@ -287,4 +297,6 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 	window.draw(background);
 	window.draw(background2);
 	window.draw(dialogueText);
+
+	lastLineIndex = dialogueLineIndex;
 }
