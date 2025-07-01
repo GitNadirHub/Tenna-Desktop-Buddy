@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <random>
+#include <chrono>
 using namespace sf;
 using namespace std;
 
@@ -71,13 +72,112 @@ vector<string> strings = {"Hello world!",
 "Entertainment! \n",
 "Don't touch that dial! \nAnd don't stop those smiles! \n",
 "KRIS?!\nLOOK AT THESE \nRATINGS! \nTHEY'RE OFF THE CHARTS!\n",
-"Without my TV, \nI’m lost in transmission.",
+"Without my TV, \nIm lost in transmission.",
 "What?!\nI'd do wordart,\nbut the budget was\nused up on the\nvoice acting!",
 "Wordart? \nI hardly know her!\n",
 "My TV is not a great\nlistener, \nbut it sure is a great talker!",
 "Ralsei plush! Fill\nhim with liquid,\nthrow him against the\nwall!",
 "Darn!! I\novercooked the\nwater!!",
-"Oops!! No!!\nI keep breaking\nthe eggs!!"
+"Oops!! No!!\nI keep breaking\nthe eggs!!",
+"Tonight on PAY-PER-VIEW:\nMe. Staring at the wall.",
+"Broadcasting live from\nthe inside of your fridge!",
+"We're experiencing technical difficulties.\nPlease scream into the void.",
+"The dog is in the vents again.",
+"That dog took my job.\nAnd my lunch.",
+"You call this a DESKTOP?",
+"He's back...\nWith the eggs.",
+"You ever see a dog\ndo taxes?\nNo?\nLucky you.",
+"I see youre running Windows...bad choice.\nWhat's Windows, anyway?\nSome kind of TV program?",
+"You're not real.\nI made you up\nto cope with the static.",
+"I see what you're doing.\nAnd I approve.",
+"Don't think about eggs.\nToo late.",
+"I know your secrets.\nEspecially the one about the spoon.",
+"If you dream of me,\nI dream back.",
+"Stop blinking.\nYou're wasting frames.",
+"I once knew a man\nnamed Table.\nHe wasn't very stable.",
+"Behold!\nA perfectly normal message.",
+"One of these lines\nis secretly a recipe.",
+"Blink once for yes.\nTwice for spaghetti.",
+"They took the microwave, Kris.\nTHE MICROWAVE!",
+"He said he'd come back...\nHe never returned from the store.",
+"I trusted you.\nThen you opened the Recycle Bin.",
+"Where is ASRIEL?\nWhat?! COLLEGE?!\nBut you can learn anything on TV!!",
+"KRIS!\nThe ratings are low.\nDo something chaotic!",
+"They said I was 'retro'...\nThen they threw me in the attic.",
+"You ever got replaced\nby a smart fridge?\nI have.",
+"Is it still nostalgia\nif no one remembers?",
+"Look at me!\nPlease?\nJust a little glance?",
+"The ratings...\nI can feel them dropping!",
+"Don't change the channel!\nI can still entertain you!",
+"This is my moment!\nLights! Camera! Sadness!",
+"Back in MY day,\nwe had scheduled programming!",
+"I'm still broadcasting,\nare you still watching?",
+"Welcome back to Channel Me!",
+"Hope you brought popcorn!\nBecause I'm about to POP OFF!",
+"Behold!\nA television with zero channels\nbut infinite charisma!",
+"Smile for the static!",
+"THIS JUST IN:\nYou're awesome!",
+"Live from the living room:\nIts ME!",
+"Are you not entertained!?\nNo? Well I have 47 backup plans!",
+"BREAKING NEWS:\nIm breaking...dance.",
+"Im powered by drama\nand possibly ghosts!",
+"Hold onto your remotes!\nThis episodes going off the rails!",
+"Someone get the confetti!\nIm making an entrance!",
+"Guess who just got upgraded\nwith... nothing!\nBut I FEEL upgraded!",
+"I run on attention\nand lukewarm soup!",
+"Coming up next:\nA MYSTERIOUS CRASH\nin your hallway!",
+"Warning:\nMy volume control is emotional.",
+"Im not yelling,\nIm projecting!",
+"Did someone say ratings?\nBecause I just SPIKED.",
+"I am the broadcast,\nthe whole broadcast,\nand nothing but the broadcast!",
+"Stand back!\nI do my own stunts!",
+"You cant mute me!\nIve eaten the button!",
+"Todays forecast:\nLoud with a chance of fabulous!",
+"If I freeze,\njust pretend its dramatic tension.",
+"Every time you blink,\nI get closer to a reboot!",
+"You cant skip this scene,\nIm in ALL of them!",
+"Im the star,\nthe sidekick,\nand the commercial break!",
+"I once hosted a cooking show.\nIt ended in bad weather and tears!",
+"CHANNEL SURFERS BEWARE:\nI BITE.",
+"Quiet on set!\nIm about to monologue!",
+"My face was made\nfor standard definition!",
+"My energy bill?\nEmotionally expensive.",
+"I swallowed a VHS\nand now I speak in rewinds!",
+"MY SIGNAL IS\nILLEGALLY STRONG!",
+"EVERY CHANNEL\nIS JUST ME SCREAMING!",
+"Ive been on hold\nfor 12 years.\nTHE MUSIC NEVER STOPS.",
+"Did you know I can\npick up radio signals?\nIm basically a DJ!",
+"I'M A CRT, BABY!\nBUILT TO LAST AND\nTO BLAST!",
+"FLAT SCREENS?\nMORE LIKE FLAT PERSONALITIES!",
+"Im 50 pounds of FUN\nand five inches of CHAOS!",
+"My pixels are THICC.",
+"I hum when Im angry.\nWhich is always.",
+"Don't put a magnet near me.",
+"I EAT REMOTES\nFOR BREAKFAST.",
+"My screen curves\nlike your spine.\nSERIOUSLY, CORRECT YOUR POSTURE!",
+"WARNING:\nI MAY CONTAIN LEAD\nAND UNHINGED ENERGY.",
+"You call it outdated.\nI call it VINTAGE RAGE.",
+"I broadcast at 480i of FURY.",
+"THE ONLY HIGH DEFINITION I NEED\nIS HIGH DRAMA!",
+"I'M TOO ANALOG\nTO APOLOGIZE!",
+"I WAS BUILT\nBEFORE YOUR MOM\nFINISHED DIAL-UP!",
+"Do I buzz when I'm on?\nYES.\nThat's ME PULLING POWER FROM THE ETHER.",
+"I OVERHEAT WITH LOVE!",
+"My back is HUGE.\nMy power is IMMEASURABLE.",
+"People used to gather 'round me\nand... what was I going to say?",
+"HDMI?\nI ONLY SPEAK IN COAXIAL!",
+"I played cartoons\nthat made kids cry.\nYOU'RE NEXT.",
+"Dont put me in a landfill.\nILL HAUNT THE RECYCLING CENTER!",
+"I was BORN in a basement\nand RAISED on CHANNEL 3.",
+"THE ONLY FLAT THING ABOUT ME\nIS MY PATIENCE!",
+"My screen can reflect your face\nand your REGRET.",
+"Glass? Yes.\nClass? DOUBLE YES.",
+"Im a whole entertainment center.\nYOU are just a viewer.",
+"I once electrocuted a man\nby EXISTING NEAR HIM.",
+"I dont DO Wi-Fi,\nI DO WHY-CRY.",
+"I WILL OUTLIVE\nEVERY STREAMING SERVICE!"
+
+
 };
 
 static Font font("res/fonts/sb.ttf");
@@ -88,9 +188,13 @@ int i = 0;
 
 void initializeDialogue()
 {
-	strings.push_back("T his message has\nthe chance of \nappearing " + to_string(100.f / strings.size()+1) + "% \nof the time.\n");
+	strings.push_back("This message has\nthe chance of \nappearing " + to_string(100.f /( strings.size()+1)) + "% \nof the time.\n");
+	
+	default_random_engine engineRandom;
+	engineRandom.seed(chrono::system_clock::now().time_since_epoch().count());
 
-	shuffle(strings.begin(), strings.end(), std::default_random_engine());
+
+	shuffle(strings.begin(), strings.end(), engineRandom);
 	dialogueText.setString(strings[0]);
 	dialogueText.setCharacterSize(8);
 	dialogueText.setFillColor(Color::Color(1, 1, 1, 255));
