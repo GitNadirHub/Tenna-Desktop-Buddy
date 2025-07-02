@@ -180,7 +180,15 @@ vector<string> strings = {"Hello world!",
 "human... i remember you're\ngenocides.",
 "Did you know?\n100% of the people who\ndon't watch TV die!",
 "A man has fallen into the\nriver in LEGO CITY!\nStart the new rescue helicopter!\nHEY!",
-
+"Do I know Mettaton?\nWhich one?\nI met a ton.",
+"Tori?\nOh yeah, she always\nused to take notes\nduring my cooking shows!",
+"Asgore?\nOh yeah, haven't seen him much lately.\nEver since he ran over that...\ndeer...? with his truck...?",
+"I love my nose.",
+"Toby Fox?\nWho the flip is that?\nSounds... cool, actually.",
+"Nadir? Oh yeah, he's very\namazing, smart, handsome, beautiful,\nfunny, kind, generous,\nfriendly, and especially\nhumble!",
+"You've got a\nfriend in me!",
+"Somebody once told me the world is gonna roll me\nI ain't the sharpest tool in the shed\nShe was looking kinda dumb with her finger and her thumb\nIn the shape of an 'L' on her forehead",
+""
 };
 
 int dialogueLineIndex = 0;

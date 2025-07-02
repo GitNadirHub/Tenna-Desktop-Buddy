@@ -227,7 +227,6 @@ void coolStuff(RenderWindow &window)
         theIndex++;
     }
 
-
 }
 
 void handleLogic(RenderWindow &window)
