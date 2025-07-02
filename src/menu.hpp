@@ -21,7 +21,7 @@ struct Menu {
     std::vector<MenuItem> items;
     sf::Vector2f position;
     bool isOpen = false;
-    float width = 185.f;
+    float width = 205.f;
     float itemHeight = 40.f;
 
     void open(sf::Vector2f pos);
