@@ -10,7 +10,8 @@ using namespace std;
 
 SoundBuffer buf_snd_tenna_talk("res/snd/tenna_talk.wav");
 Sound snd_tenna_talk(buf_snd_tenna_talk);
-
+SoundBuffer buf_snd_lego_city("res/snd/lego_city.wav");
+Sound snd_lego_city(buf_snd_lego_city);
 
 vector<string> strings = {"Hello world!",
 "Lalala~ \nTime to wake up and \nsmell the pain",
@@ -175,8 +176,10 @@ vector<string> strings = {"Hello world!",
 "Im a whole entertainment center.\nYOU are just a viewer.",
 "I once electrocuted a man\nby EXISTING NEAR HIM.",
 "I dont DO Wi-Fi,\nI DO WHY-CRY.",
-"I WILL OUTLIVE\nEVERY STREAMING SERVICE!"
-
+"I WILL OUTLIVE\nEVERY STREAMING SERVICE!",
+"human... i remember you're\ngenocides.",
+"Did you know?\n100% of the people who\ndon't watch TV die!",
+"A man has fallen into the\nriver in LEGO CITY!\nStart the new rescue helicopter!\nHEY!",
 
 };
 
@@ -187,21 +190,25 @@ Text dialogueText(font);
 
 //int i = strings.size()-1; 
 
+int legoCityIndex = 0;
+
 void initializeDialogue()
 {
-	strings.push_back("Did you know?\nThis game holds exactly\n" + to_string(strings.size()+2) + " lines.\nI'm one of them.");
-	strings.push_back("This message has\nthe chance of \nappearing " + to_string(100.f /( strings.size()+1)) + "% \nof the time.\n");
-	
+	strings.push_back("Did you know?\nThis game holds exactly\n" + to_string(strings.size() + 2) + " lines.\nI'm one of them.");
+	strings.push_back("This message has\nthe chance of \nappearing " + to_string(100.f / (strings.size() + 1)) + "% \nof the time.\n");
+
 	default_random_engine engineRandom;
 	engineRandom.seed(chrono::system_clock::now().time_since_epoch().count());
 
-
 	shuffle(strings.begin(), strings.end(), engineRandom);
+
+	legoCityIndex = find(strings.begin(), strings.end(), "A man has fallen into the\nriver in LEGO CITY!\nStart the new rescue helicopter!\nHEY!") - strings.begin();
+
 	dialogueText.setString(strings[0]);
 	dialogueText.setCharacterSize(8);
 	dialogueText.setFillColor(Color::Color(1, 1, 1, 255));
 
-
+	snd_lego_city.setVolume(500.f);
 }
 
 bool keyPressedLastFrame = false;
@@ -216,8 +223,9 @@ bool isPunctuation(char c)
 		return true;
 	return false;
 }
-float elapsed=0;
+float elapsed = 0;
 
+extern bool debugMode; //defined in main.cpp
 
 void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 {
@@ -230,37 +238,47 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 
 
 	//DEBUG
-	if (Keyboard::isKeyPressed(Keyboard::Key::Space))
+
+	if (debugMode)
 	{
-		if (!keyPressedLastFrame)
+		if (Keyboard::isKeyPressed(Keyboard::Key::Space))
 		{
-			elapsed = 0;
-			dialogueLineIndex++;
-			if (dialogueLineIndex >= strings.size())
+			if (!keyPressedLastFrame)
 			{
-				dialogueLineIndex = 0;
+				elapsed = 0;
+				dialogueLineIndex++;
+				if (dialogueLineIndex >= strings.size())
+				{
+					dialogueLineIndex = 0;
+				}
+				keyPressedLastFrame = true;
 			}
-			keyPressedLastFrame = true;
 		}
+		else
+			keyPressedLastFrame = false;
 	}
-	else
-		keyPressedLastFrame = false;
+
 	//DEBUG
 
-
-
 	float slowDownFactor = 1.f + ((strings[dialogueLineIndex][textIndex] == '\n') * 5.f) +
-								 (isPunctuation(strings[dialogueLineIndex][textIndex]) && !isPunctuation(strings[dialogueLineIndex][textIndex+1]) * 15.f);
+		(isPunctuation(strings[dialogueLineIndex][textIndex]) && !isPunctuation(strings[dialogueLineIndex][textIndex + 1]) * 15.f);
 
 	if (elapsed == 0.f)
 		textIndex = 0;
 	else
-		textIndex = max(textIndex, textIndex + elapsed/(25.f*slowDownFactor));
+		textIndex = max(textIndex, textIndex + elapsed / (25.f * slowDownFactor));
 
 	if (textIndex >= strings[dialogueLineIndex].size())
 		textIndex = strings[dialogueLineIndex].size(), snd_tenna_talk.pause();
-	else if (snd_tenna_talk.getStatus()!=Sound::Status::Playing)
+	else if (snd_tenna_talk.getStatus() != Sound::Status::Playing)
 		snd_tenna_talk.play();
+
+
+	if (dialogueLineIndex == legoCityIndex && elapsed <= 1)
+	{
+		if (snd_lego_city.getStatus() != Sound::Status::Playing)
+			snd_lego_city.play();
+	}
 
 	//if (slowDownFactor > 1.f)
 	//	snd_tenna_talk.pause();
@@ -286,13 +304,13 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 	invisibleText.setOrigin({ width, 0 });
 
 
-	RectangleShape background({ width + 15.f, height +15.f });
+	RectangleShape background({ width + 15.f, height + 15.f });
 	RectangleShape background2({ width + 30.f, height });
 
-	background.setOrigin({background.getSize().x, 0});
+	background.setOrigin({ background.getSize().x, 0 });
 	background2.setOrigin(background.getOrigin());
-	background.setPosition({ dialogueText.getPosition().x+5.f, dialogueText.getPosition().y - 15.f });
-	background2.setPosition({background.getPosition().x - 7.f, background.getPosition().y+7});
+	background.setPosition({ dialogueText.getPosition().x + 5.f, dialogueText.getPosition().y - 15.f });
+	background2.setPosition({ background.getPosition().x - 7.f, background.getPosition().y + 7 });
 
 	window.draw(background);
 	window.draw(background2);

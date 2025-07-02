@@ -34,15 +34,15 @@ void Menu::draw(sf::RenderWindow& window, sf::Font& font)
 
 MenuAction Menu::handleClick(sf::Vector2f mouse)
 {
-    if (!isOpen) return None;
+    if (!isOpen) return MenuAction::None;
 
     sf::FloatRect bounds(position, { width, itemHeight * (float)items.size() });
-    if (!bounds.contains(mouse)) return None;
+    if (!bounds.contains(mouse)) return MenuAction::None;
 
     int index = (mouse.y - position.y) / itemHeight;
     if (index >= 0 && index < (int)items.size()) {
         return items[index].action;
     }
 
-    return None;
+    return MenuAction::None;
 }

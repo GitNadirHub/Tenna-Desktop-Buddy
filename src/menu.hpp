@@ -2,12 +2,13 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-enum MenuAction {
+enum class MenuAction {
     None,
     Close,
     Tpose,
     MenuIdle,
-    Pluey
+    Pluey,
+    Speak
 };
 
 struct MenuItem {

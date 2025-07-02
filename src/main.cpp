@@ -7,6 +7,9 @@
 #include "resources.hpp"
 #include "dialogue.hpp"
 #include <random>
+#include <iostream>
+
+extern bool debugMode = false;
 
 using namespace sf;
 
@@ -66,10 +69,11 @@ void initialize(RenderWindow &window)
     menu.items =
     {
         {"   - Menu -", },
-        { "Close", Close },
-        {"Idle", MenuIdle},
-        {"T-Pose", Tpose},
-        {"Pluey", Pluey}
+        { "Close", MenuAction::Close },
+        {"Idle", MenuAction::MenuIdle},
+        {"T-Pose", MenuAction::Tpose},
+		{"Speak", MenuAction::Speak},
+        {"Pluey", MenuAction::Pluey}
     };
 
 }
@@ -83,7 +87,7 @@ int randomRange(int lower, int higher)
     return dist(rng);
 }
 
-int dialogueAppearTime=randomRange(1, 1); //first appearance is always quicker
+int dialogueAppearTime=randomRange(3, 7); //first appearance is always quicker
 
 bool handleDialogueLogic()
 {
@@ -94,7 +98,7 @@ bool handleDialogueLogic()
     if (elapsedTime > dialogueEndTime)
     {
         dialogueClock.restart();
-        dialogueAppearTime = randomRange(15, 60);
+        dialogueAppearTime = randomRange(0, 60);
         dialogueEndTime = dialogueAppearTime + 10;
         dialogueLineIndex++;
         return false;
@@ -113,7 +117,7 @@ void draw(RenderWindow& window)
 
     int currentFrame;
 
-    bool showDialogue = handleDialogueLogic();
+    bool showDialogue = debugMode || handleDialogueLogic();
 
     switch (tenna.state)
     {
@@ -171,6 +175,61 @@ void draw(RenderWindow& window)
     window.display();
 }
 
+void coolStuff(RenderWindow &window)
+{
+
+    static Keyboard::Key konamiKeys[] =
+    {
+        Keyboard::Key::Up,
+        Keyboard::Key::Up,
+        Keyboard::Key::Down,
+        Keyboard::Key::Down,
+        Keyboard::Key::Left,
+        Keyboard::Key::Right,
+        Keyboard::Key::Left,
+        Keyboard::Key::Right,
+        Keyboard::Key::B,
+        Keyboard::Key::A
+    };
+
+    static int konamiIndex = 0;
+
+    if (konamiIndex >= 10)
+    {
+        tenna.state = TennaState::tpose;
+        snd_friend_inside_me.play();
+		debugMode = !debugMode;
+        konamiIndex = 0;
+    }
+    else if (sf::Keyboard::isKeyPressed(konamiKeys[konamiIndex]))
+    {
+        konamiIndex++;
+    }
+
+    static Keyboard::Key theKeys[] =
+    {
+        Keyboard::Key::G,
+        Keyboard::Key::A,
+        Keyboard::Key::S,
+        Keyboard::Key::T,
+        Keyboard::Key::E,
+        Keyboard::Key::R
+    };
+
+	static int theIndex = 0;
+
+    if (theIndex >= 6)
+    {
+        window.close();
+    }
+    else if (sf::Keyboard::isKeyPressed(theKeys[theIndex]))
+    {
+        theIndex++;
+    }
+
+
+}
+
 void handleLogic(RenderWindow &window)
 {
 
@@ -201,10 +260,14 @@ void handleLogic(RenderWindow &window)
 
     while (const std::optional event = window.pollEvent())
     {
+        bool menuWasOpen = menu.isOpen;
+
         if (event->is<sf::Event::Closed>())
         {
             window.close();
         }
+
+		coolStuff(window); //very epic
 
         // Open menu on new right-click
         if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) && !rightPressedLastFrame) {
@@ -216,28 +279,35 @@ void handleLogic(RenderWindow &window)
         if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !leftReleasedLastFrame && menu.isOpen)
         {
             MenuAction action = menu.handleClick(mousePosF);
+            menuWasOpen = menu.isOpen;
             menu.close();
+
+            //HANDLE MENU ACTIONS
+
             switch (action)
             {
-            case Close:
+            case MenuAction::Close:
                 tenna.state = TennaState::explode;
                 break;
-            case Tpose:
+            case MenuAction::Tpose:
                 tenna.state = TennaState::tpose;
                 break;
-            case MenuIdle:
+            case MenuAction::MenuIdle:
                 tenna.state = TennaState::idle;
                 break;
-            case Pluey:
+            case MenuAction::Pluey:
                 plueyActive = !plueyActive;
                 snd_friend_inside_me.play();
+                break;
+			case MenuAction::Speak:
+				dialogueAppearTime = 0; //instantly show dialogue, if not already showing
                 break;
             }
         }
         leftReleasedLastFrame = !sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
 
-        if (Mouse::isButtonPressed(Mouse::Button::Left))
+        if (Mouse::isButtonPressed(Mouse::Button::Left)  && !menuWasOpen)
         {
             if (lastMousePressed)
             {
