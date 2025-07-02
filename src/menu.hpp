@@ -8,7 +8,8 @@ enum class MenuAction {
     Tpose,
     MenuIdle,
     Pluey,
-    Speak
+    Speak,
+    ToggleAutoSpeak
 };
 
 struct MenuItem {
@@ -20,8 +21,8 @@ struct Menu {
     std::vector<MenuItem> items;
     sf::Vector2f position;
     bool isOpen = false;
-    float width = 140.f;
-    float itemHeight = 30.f;
+    float width = 185.f;
+    float itemHeight = 40.f;
 
     void open(sf::Vector2f pos);
     void close();

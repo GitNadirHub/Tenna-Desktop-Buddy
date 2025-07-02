@@ -41,6 +41,7 @@ Clock animationClock; //used for elapsed time in, well, animations (read the nam
 
 bool plueyActive = false;
 bool flipped = false; //used to flip the sprite when the mouse is on the left side of tenna
+bool autoSpeak = true;
 
 float tennaWidth = tenna.sprite.getTexture().getSize().x;
 float tennaHeight = tenna.sprite.getTexture().getSize().y;
@@ -68,16 +69,18 @@ void initialize(RenderWindow &window)
     snd_slide.setVolume(30.f);
     menu.items =
     {
-        {"   - Menu -", },
+        {"       ~ Menu ~", },
         { "Close", MenuAction::Close },
         {"Idle", MenuAction::MenuIdle},
         {"T-Pose", MenuAction::Tpose},
 		{"Speak", MenuAction::Speak},
-        {"Pluey", MenuAction::Pluey}
-    };
+        {"Auto speak: ON", MenuAction::ToggleAutoSpeak },
+        {"Pluey", MenuAction::Pluey},    };
 
 }
 
+SoundBuffer buf_snd_dogtrill("res/snd/dogtrill.wav");
+Sound snd_dogtrill(buf_snd_dogtrill);
 
 int randomRange(int lower, int higher)
 {
@@ -89,8 +92,16 @@ int randomRange(int lower, int higher)
 
 int dialogueAppearTime=randomRange(3, 7); //first appearance is always quicker
 
+int noneCount = 0;
+
 bool handleDialogueLogic()
 {
+
+    if (tenna.state != TennaState::idle && tenna.state != TennaState::tpose)
+        return false;
+    if (dialogueAppearTime != 0 && !autoSpeak)
+        return false;
+
     static Clock dialogueClock;
     int elapsedTime = dialogueClock.getElapsedTime().asSeconds();
     static int dialogueEndTime = dialogueAppearTime + 10;
@@ -131,6 +142,7 @@ void draw(RenderWindow& window)
     case TennaState::explode:
         tenna.sprite.setTexture(t_explode);
         currentFrame = animateIndexed(20, 240, 426, 0.1, elapsed, tenna.sprite);
+        plueySprite.setPosition({ plueySprite.getPosition().x + 10, plueySprite.getPosition().y });
         if (currentFrame == 13)
         {
             snd_boom.play();
@@ -285,6 +297,13 @@ void handleLogic(RenderWindow &window)
 
             switch (action)
             {
+            case MenuAction::None:
+                if (noneCount++ == 5)
+                {
+                    snd_dogtrill.play();
+                    noneCount = 0;
+                }
+                break;
             case MenuAction::Close:
                 tenna.state = TennaState::explode;
                 break;
@@ -301,6 +320,13 @@ void handleLogic(RenderWindow &window)
 			case MenuAction::Speak:
 				dialogueAppearTime = 0; //instantly show dialogue, if not already showing
                 break;
+            case MenuAction::ToggleAutoSpeak:
+                autoSpeak = !autoSpeak;
+                if (autoSpeak)
+                    menu.items[5].label = "Auto speak: ON";
+                else
+                    menu.items[5].label = "Auto speak: OFF";
+				break;
             }
         }
         leftReleasedLastFrame = !sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
