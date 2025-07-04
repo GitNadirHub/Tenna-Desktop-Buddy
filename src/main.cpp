@@ -219,8 +219,14 @@ Clock randomStateClock;
 
 float secondsTillEvent = 25;
 
+bool danceFromMenu = 0;
+
 void randomState()
 {
+
+    if (danceFromMenu)
+        return;
+
      if (randomStateClock.getElapsedTime().asSeconds() >= 10)
         {
             tenna.state = TennaState::idle;
@@ -449,6 +455,9 @@ void handleLogic(RenderWindow &window)
             menu.close();
 
             //HANDLE MENU ACTIONS
+
+            danceFromMenu = action == MenuAction::Dance; // randomState() logic could stop dance early, even if user-requested
+ 
 
             switch (action)
             {

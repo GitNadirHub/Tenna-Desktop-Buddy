@@ -31,6 +31,7 @@ void drawIntro(sf::RenderWindow &window)
 	snd_tv_time.setVolume(15.f);
 	snd_tv_time.play();
 	
+	int prevChunk = -1;
 
 	while (window.isOpen()) //INTRO
 	{
@@ -47,6 +48,15 @@ void drawIntro(sf::RenderWindow &window)
 
 		auto elapsed = animClock.getElapsedTime();
 		
+
+		if (chunk >= 4)
+			break;
+
+		if (chunk != prevChunk)
+			tv_time.setTexture(t_tv_time[chunk]);
+		prevChunk = chunk;
+
+
 		int index = animateIndexed(chunkFrameCount, 426, 240, 0.07, elapsed, tv_time);
 		if (index == chunkFrameCount-1)
 		{
@@ -54,12 +64,8 @@ void drawIntro(sf::RenderWindow &window)
 			animClock.restart();
 		}
 
-		if (chunk == 3 && index == 3 )
+		if (chunk == 3 && index == 3)
 			snd_boom.play();
-
-		if (chunk >= 4)
-			break;
-		tv_time.setTexture(t_tv_time[chunk]);
 
 		window.clear();
 		window.draw(tv_time);
