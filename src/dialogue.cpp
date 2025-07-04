@@ -188,7 +188,8 @@ vector<string> strings = {"Hello world!",
 "Nadir? Oh yeah, he's very\namazing, smart, handsome, beautiful,\nfunny, kind, generous,\nfriendly, and especially\nhumble!",
 "You've got a\nfriend in me!",
 "Somebody once told me the world is gonna roll me\nI ain't the sharpest tool in the shed\nShe was looking kinda dumb with her finger and her thumb\nIn the shape of an 'L' on her forehead",
-""
+"These birds are pissing me off\nI am the original         Starwalker",
+"This line is gramatically uncorrenct",
 };
 
 int dialogueLineIndex = 0;
@@ -235,7 +236,7 @@ float elapsed = 0;
 
 extern bool debugMode; //defined in main.cpp
 
-void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
+void dialogueDraw(RenderWindow& window, const Vector2f tennaPos, bool tv_time)
 {
 	elapsed = dialogueClock.restart().asMilliseconds();
 
@@ -303,19 +304,19 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos)
 	float height = invisibleText.getGlobalBounds().size.y;
 
 
-	Vector2f pos = { tennaPos.x - 70.f, tennaPos.y - 100.f };
+	Vector2f pos = { tennaPos.x - 70.f + tv_time*(70.f + 96), tennaPos.y - 100.f};
 
 	dialogueText.setPosition(pos);
 	invisibleText.setPosition(pos);
 
-	dialogueText.setOrigin({ width, 0 });
-	invisibleText.setOrigin({ width, 0 });
+	dialogueText.setOrigin({ width * !tv_time, 0 });
+	invisibleText.setOrigin({ width * !tv_time, 0 });
 
 
 	RectangleShape background({ width + 15.f, height + 15.f });
 	RectangleShape background2({ width + 30.f, height });
 
-	background.setOrigin({ background.getSize().x, 0 });
+	background.setOrigin({ background.getSize().x * !tv_time, 0 });
 	background2.setOrigin(background.getOrigin());
 	background.setPosition({ dialogueText.getPosition().x + 5.f, dialogueText.getPosition().y - 15.f });
 	background2.setPosition({ background.getPosition().x - 7.f, background.getPosition().y + 7 });

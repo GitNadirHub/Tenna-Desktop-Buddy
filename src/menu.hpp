@@ -7,6 +7,7 @@ enum class MenuAction {
     Close,
     Tpose,
     MenuIdle,
+    Dance,
     Pluey,
     Speak,
     ToggleAutoSpeak

@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <Windows.h>
+#include <tlhelp32.h>
 #include <SFML/audio.hpp>
 #include "menu.hpp"
 #include "intro.hpp"
@@ -9,7 +10,7 @@
 #include <random>
 #include <iostream>
 
-extern bool debugMode = false;
+bool debugMode = false;
 
 using namespace sf;
 
@@ -17,7 +18,11 @@ enum class TennaState
 {
     idle,
     tpose,
-    explode
+    explode,
+    freakout,
+    dance1,
+    dance2,
+    tv_time
 };
 
 struct Tenna
@@ -73,14 +78,47 @@ void initialize(RenderWindow &window)
         { "Close", MenuAction::Close },
         {"Idle", MenuAction::MenuIdle},
         {"T-Pose", MenuAction::Tpose},
+        {"Dance", MenuAction::Dance},
 		{"Speak", MenuAction::Speak},
         {"Auto speak: ON", MenuAction::ToggleAutoSpeak },
         {"Pluey", MenuAction::Pluey},    };
 
 }
 
+bool isProcessRunning(const std::wstring& processName)
+{
+    bool found = false;
+
+    //Take a snapshot of all running processes
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snapshot == INVALID_HANDLE_VALUE)
+        return false;
+
+    PROCESSENTRY32W pe;
+    pe.dwSize = sizeof(PROCESSENTRY32W);
+
+    // Iterate over the process list :fire:
+    if (Process32FirstW(snapshot, &pe))
+    {
+        do
+        {
+            if (processName == pe.szExeFile)
+            {
+                found = true;
+                break;
+            }
+        } while (Process32NextW(snapshot, &pe));
+    }
+
+    CloseHandle(snapshot);
+    return found; //note to self: don't use this every frame, as commented above, it does quite a LOOOT
+}
+
+extern Sound snd_tenna_talk;
+
+
 SoundBuffer buf_snd_dogtrill("res/snd/dogtrill.wav");
-Sound snd_dogtrill(buf_snd_dogtrill);
+Sound snd_dogtrill(buf_snd_dogtrill); //click the menu title ten times
 
 int randomRange(int lower, int higher)
 {
@@ -90,14 +128,66 @@ int randomRange(int lower, int higher)
     return dist(rng);
 }
 
-int dialogueAppearTime=randomRange(3, 7); //first appearance is always quicker
+float randomRangeF(float lower, float higher)
+{
+    static std::random_device rd;
+    static std::mt19937 rng(rd());
+    std::uniform_real_distribution<float> dist(lower, higher);
+    return dist(rng);
+}
+
+bool freakoutLastFrame = 0;
+
+int dialogueAppearTime = randomRange(3, 7); //first appearance is always quicker
+
+Clock processClock;
+
+bool isAnnoyingDog = 0; //to annoying dog or to not annoying dog, that is the question
+
+bool isUTorDT = 0;
+
+void handleProcessInteractions()
+{
+    if (processClock.getElapsedTime().asSeconds() >= 5.0f)
+    {
+        processClock.restart();
+        isAnnoyingDog = isProcessRunning(L"Annoying Dog Desktop Buddy.exe");
+        if (!isAnnoyingDog)
+        {
+            isUTorDT = isProcessRunning(L"DELTARUNE.exe") || isProcessRunning(L"Undertale.exe");
+        }
+    }
+
+    if (isAnnoyingDog)
+    {
+        tenna.state = TennaState::freakout;
+        snd_tenna_talk.setPitch(randomRangeF(0.6f, 1.2f));
+        if (snd_tenna_talk.getStatus() != Sound::Status::Playing)
+            snd_tenna_talk.play();
+        freakoutLastFrame = true;
+    }
+    else if (freakoutLastFrame)
+    {
+        snd_tenna_talk.setPitch(1.0f);
+        snd_tenna_talk.stop();
+
+        tenna.state = TennaState::idle;
+        dialogueAppearTime = 15;
+
+        freakoutLastFrame = false;
+    }
+    else if (isUTorDT)
+    {
+        tenna.state = TennaState::tv_time;
+    }
+}
 
 int noneCount = 0;
 
 bool handleDialogueLogic()
 {
 
-    if (tenna.state != TennaState::idle && tenna.state != TennaState::tpose)
+    if (tenna.state != TennaState::idle && tenna.state != TennaState::tpose && tenna.state != TennaState::tv_time)
         return false;
     if (dialogueAppearTime != 0 && !autoSpeak)
         return false;
@@ -122,13 +212,49 @@ bool handleDialogueLogic()
     return false;
 }
 
+Clock deltaClock;
+
+Clock randomStateClock;
+
+float secondsTillEvent = 25;
+
+void randomState()
+{
+     if (randomStateClock.getElapsedTime().asSeconds() >= 10)
+        {
+            tenna.state = TennaState::idle;
+            secondsTillEvent = randomRangeF(40, 120);
+            randomStateClock.restart();
+            return;
+        }
+
+    if (handleDialogueLogic())
+        return;
+
+    if (secondsTillEvent > randomStateClock.getElapsedTime().asSeconds())
+        return;
+    secondsTillEvent = randomRangeF(20, 50);
+    randomStateClock.restart();
+    int randomAction = randomRange(0, 3);
+    if (randomAction <= 1)
+        tenna.state = TennaState::idle;
+    else if (randomAction <= 2)
+        tenna.state = TennaState::dance1;
+    else
+        tenna.state = TennaState::dance2;
+}
+
 void draw(RenderWindow& window)
 {
     Time elapsed = animationClock.getElapsedTime();
 
+    float dt = deltaClock.restart().asSeconds();
+
     int currentFrame;
 
     bool showDialogue = debugMode || handleDialogueLogic();
+
+    randomState();
 
     switch (tenna.state)
     {
@@ -155,6 +281,30 @@ void draw(RenderWindow& window)
             }
             window.close();
         }
+        break;
+    case TennaState::freakout:
+        tenna.sprite.setTexture(t_freakout);
+        animateLooped(81, 128, 128, 0.001, elapsed, tenna.sprite);
+        break;
+    case TennaState::tv_time:
+    {
+        static Vector2f desiredPos = { 256.f, window.getSize().y * 1.f - tenna.sprite.getTexture().getSize().y/2.f};
+        Vector2f deltaPos = desiredPos - tenna.position;
+        if (deltaPos.y < 1.f)
+        {
+            tenna.position = desiredPos;
+            tenna.sprite.setTexture(t_lookaway);
+        }
+        tenna.position += deltaPos * dt;
+        break;
+    }
+    case TennaState::dance1:
+        tenna.sprite.setTexture(t_dance0);
+        animateLooped(93, 88, 146, 0.025, elapsed, tenna.sprite);
+        break;
+    case TennaState::dance2:
+        tenna.sprite.setTexture(t_dance_cane);
+        animateLooped(59, 123, 145, 0.03, elapsed, tenna.sprite);
         break;
     default:
         break;
@@ -183,9 +333,12 @@ void draw(RenderWindow& window)
         }
     }
     if (showDialogue)
-	    dialogueDraw(window, tenna.position);
+	    dialogueDraw(window, tenna.position, tenna.state==TennaState::tv_time);
     window.display();
 }
+
+u_int danceCount = 1;
+
 
 void coolStuff(RenderWindow &window)
 {
@@ -241,6 +394,8 @@ void coolStuff(RenderWindow &window)
 
 }
 
+// You may not rest now. There are monsters nearby
+
 void handleLogic(RenderWindow &window)
 {
 
@@ -281,7 +436,8 @@ void handleLogic(RenderWindow &window)
 		coolStuff(window); //very epic
 
         // Open menu on new right-click
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) && !rightPressedLastFrame) {
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) && !rightPressedLastFrame)
+        {
             menu.open(mousePosF);
             menuOpen = 1;
         }
@@ -323,10 +479,24 @@ void handleLogic(RenderWindow &window)
             case MenuAction::ToggleAutoSpeak:
                 autoSpeak = !autoSpeak;
                 if (autoSpeak)
-                    menu.items[5].label = "Auto speak: ON";
+                    menu.items[6].label = "Auto speak: ON";
                 else
-                    menu.items[5].label = "Auto speak: OFF";
+                    menu.items[6].label = "Auto speak: OFF";
 				break;
+            case MenuAction::Dance:
+                if (danceCount == 1)
+                {
+                    menu.items[4].label = "Dance: Cane";
+                    danceCount = 2;
+                    tenna.state = TennaState::dance1;
+                }
+                else
+                {
+                    menu.items[4].label = "Dance: Cabbage";
+                    danceCount = 1;
+                    tenna.state = TennaState::dance2;
+                }
+                break;
             }
         }
         leftReleasedLastFrame = !sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
@@ -360,7 +530,7 @@ void handleLogic(RenderWindow &window)
     if (tenna.position.y < tenna.sprite.getTexture().getSize().y / 2.f)
         tenna.position.y = tenna.sprite.getTexture().getSize().y / 2.f;
 
-    if (tenna.position.y > window.getSize().y - tenna.sprite.getTexture().getSize().y / 2.f)
+    if (tenna.state != TennaState::tv_time && tenna.position.y > window.getSize().y - tenna.sprite.getTexture().getSize().y / 2.f)
     {
         if (snd_slide.getStatus() != Sound::Status::Playing && !isDragging)
             snd_slide.play();
@@ -373,6 +543,8 @@ void handleLogic(RenderWindow &window)
 
     //timer += 0.025f;
     //tenna.sprite.setPosition({tenna.position.x + std::sin(timer) * 2.f, tenna.position.y});
+
+    handleProcessInteractions();
 
     if (tenna.state != lastState)
     {
@@ -388,7 +560,9 @@ int main()
 
     while (window.isOpen())
     {
-        draw(window);
         handleLogic(window);
+        draw(window);
     }
 }
+
+// You have reached the bottom of the code. You may now rest.
