@@ -187,7 +187,8 @@ int noneCount = 0;
 bool handleDialogueLogic()
 {
 
-    if (tenna.state != TennaState::idle && tenna.state != TennaState::tpose && tenna.state != TennaState::tv_time)
+    if (tenna.state != TennaState::idle && tenna.state != TennaState::tpose && tenna.state != TennaState::tv_time
+        || tenna.state!=TennaState::dance1 || tenna.state!=TennaState::dance2)
         return false;
     if (dialogueAppearTime != 0 && !autoSpeak)
         return false;
@@ -228,8 +229,6 @@ void randomState()
             return;
         }
 
-    if (handleDialogueLogic())
-        return;
 
     if (secondsTillEvent > randomStateClock.getElapsedTime().asSeconds())
         return;
