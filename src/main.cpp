@@ -573,4 +573,9 @@ int main()
     }
 }
 
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+{
+    return main();
+}
+
 // You have reached the bottom of the code. You may now rest.
