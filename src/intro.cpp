@@ -67,7 +67,7 @@ void drawIntro(sf::RenderWindow &window)
 		if (chunk == 3 && index == 3)
 			snd_boom.play();
 
-		window.clear();
+		window.clear(sf::Color::Transparent);
 		window.draw(tv_time);
 		window.display();
 	}

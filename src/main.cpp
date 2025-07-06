@@ -9,6 +9,8 @@
 #include "dialogue.hpp"
 #include <random>
 #include <iostream>
+#include <Dwmapi.h> 
+#pragma comment (lib, "Dwmapi.lib")
 
 bool debugMode = false;
 
@@ -65,9 +67,10 @@ void initialize(RenderWindow &window)
 
     HWND hwnd = window.getNativeHandle();
     SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE); //makes it on top of anything
-	LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE); // get the current extended window style
-	SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED); // set the extended style to include WS_EX_LAYERED which allows transparency
+    LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE); // get the current extended window style
+    SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED); // set the extended style to include WS_EX_LAYERED which allows transparency
     SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY); //make pure black transparent
+
 
     drawIntro(window); 
 
@@ -83,6 +86,30 @@ void initialize(RenderWindow &window)
         {"Auto speak: ON", MenuAction::ToggleAutoSpeak },
         {"Pluey", MenuAction::Pluey},    };
 
+}
+
+// if this works imma freak!
+void maintainTransparancy(RenderWindow& window) 
+{
+    static sf::Clock transparancyClock;
+
+    if (transparancyClock.getElapsedTime().asMilliseconds() > 100) 
+    {
+        HWND hwnd = window.getNativeHandle();
+
+        LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+
+        if (!(exStyle & WS_EX_LAYERED)) 
+        {
+            // attempt reapplication of transparancy
+            SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED);
+            SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
+        }
+
+        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
+        transparancyClock.restart();
+    }
 }
 
 bool isProcessRunning(const std::wstring& processName)
@@ -323,7 +350,7 @@ void draw(RenderWindow& window)
 
     tenna.sprite.setScale({ (flipped && tenna.state == TennaState::idle ? 1.f : -1.f) * scaleCorrection, scaleCorrection });
 
-    window.clear();
+    window.clear(sf::Color::Transparent);
     window.draw(tenna.sprite);
     if (menu.isOpen)
         menu.draw(window, font);
@@ -402,8 +429,6 @@ void coolStuff(RenderWindow &window)
 
 }
 
-// You may not rest now. There are monsters nearby
-
 void handleLogic(RenderWindow &window)
 {
 
@@ -439,6 +464,19 @@ void handleLogic(RenderWindow &window)
         if (event->is<sf::Event::Closed>())
         {
             window.close();
+        }
+
+        if (event->is<sf::Event::FocusGained>() || event->is<sf::Event::FocusLost>()) 
+        {
+            HWND hwnd = window.getNativeHandle();
+
+            SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
+            LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+
+            SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED);
+
+            SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
         }
 
 		coolStuff(window); //very epic
@@ -562,9 +600,11 @@ void handleLogic(RenderWindow &window)
     }
 }
 
+
+
 int main()
 {
-    auto window = RenderWindow(VideoMode({1920u, 1080u}), "Tenna :D", sf::Style::None);
+    auto window = RenderWindow(VideoMode({1920u - 1u, 1080u - 1u}), "Tenna :D", sf::Style::None);
 
     initialize(window);
 
