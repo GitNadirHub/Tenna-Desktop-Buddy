@@ -90,7 +90,7 @@ void initialize(RenderWindow &window)
 
 // if this works imma freak!
 void maintainTransparancy(RenderWindow& window) 
-{
+{ //YOOOOO THANKS MIST LOVE YAAAAAAAAAAA
     static sf::Clock transparancyClock;
 
     if (transparancyClock.getElapsedTime().asMilliseconds() > 100) 
