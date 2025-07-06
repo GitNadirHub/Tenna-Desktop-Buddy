@@ -224,6 +224,9 @@ bool danceFromMenu = 0;
 void randomState()
 {
 
+    if (tenna.state == TennaState::tpose || tenna.state == TennaState::explode || tenna.state == TennaState::freakout)
+		return;
+
     if (danceFromMenu)
         return;
 
@@ -448,6 +451,7 @@ void handleLogic(RenderWindow &window)
         }
         rightPressedLastFrame = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
 
+
         if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !leftReleasedLastFrame && menu.isOpen)
         {
             MenuAction action = menu.handleClick(mousePosF);
@@ -455,9 +459,7 @@ void handleLogic(RenderWindow &window)
             menu.close();
 
             //HANDLE MENU ACTIONS
-
-            danceFromMenu = (action == MenuAction::Dance || action == MenuAction::MenuIdle); // randomState() logic could stop dance early, even if user-requested
- 
+            danceFromMenu = action == MenuAction::Dance; // randomState() logic could stop dance early, even if user-requested
 
             switch (action)
             {
