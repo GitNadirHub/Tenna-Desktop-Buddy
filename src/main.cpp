@@ -456,7 +456,7 @@ void handleLogic(RenderWindow &window)
 
             //HANDLE MENU ACTIONS
 
-            danceFromMenu = action == MenuAction::Dance; // randomState() logic could stop dance early, even if user-requested
+            danceFromMenu = (action == MenuAction::Dance || action == MenuAction::MenuIdle); // randomState() logic could stop dance early, even if user-requested
  
 
             switch (action)
