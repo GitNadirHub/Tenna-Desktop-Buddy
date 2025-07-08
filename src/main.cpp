@@ -84,6 +84,7 @@ void initialize(RenderWindow &window)
         {"Dance", MenuAction::Dance},
 		{"Speak", MenuAction::Speak},
         {"Auto speak: ON", MenuAction::ToggleAutoSpeak },
+        {"Watch mode: OFF", MenuAction::Watch},
         {"Pluey", MenuAction::Pluey},    };
 
 }
@@ -250,11 +251,13 @@ bool danceFromMenu = 0;
 
 void randomState()
 {
-
     if (tenna.state == TennaState::tpose || tenna.state == TennaState::explode || tenna.state == TennaState::freakout)
 		return;
 
     if (danceFromMenu)
+        return;
+
+    if (tenna.state == TennaState::tv_time)
         return;
 
      if (randomStateClock.getElapsedTime().asSeconds() >= 10)
@@ -264,7 +267,6 @@ void randomState()
             randomStateClock.restart();
             return;
         }
-
 
     if (secondsTillEvent > randomStateClock.getElapsedTime().asSeconds())
         return;
@@ -374,6 +376,7 @@ void draw(RenderWindow& window)
 
 u_int danceCount = 1;
 
+bool watchFromMenu = false;
 
 void coolStuff(RenderWindow &window)
 {
@@ -545,7 +548,27 @@ void handleLogic(RenderWindow &window)
                     tenna.state = TennaState::dance2;
                 }
                 break;
+            case MenuAction::Watch:
+                if (tenna.state == TennaState::tv_time)
+                {
+                    tenna.state = TennaState::idle;
+                    watchFromMenu = false;
+                    menu.items[7].label = "Watch mode: OFF";
+                }
+                else
+                {
+                    tenna.state = TennaState::tv_time;
+                    watchFromMenu = true;
+                    menu.items[7].label = "Watch mode: ON";
+                }
+                break;
             }
+            if (action != MenuAction::Watch)
+            {
+                watchFromMenu = false;
+                menu.items[7].label = "Watch mode: OFF";
+            }
+
         }
         leftReleasedLastFrame = !sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 

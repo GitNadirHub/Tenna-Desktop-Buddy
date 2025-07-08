@@ -9,7 +9,7 @@ Sound snd_hover(buf_snd_hover);
 
 void Menu::open(sf::Vector2f pos)
 {
-    position = { pos.x, std::min(pos.y, 760.f) };
+    position = { pos.x, std::min(pos.y, 710.f) };
     isOpen = true;
 } //test
 

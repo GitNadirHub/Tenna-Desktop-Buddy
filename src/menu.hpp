@@ -10,7 +10,8 @@ enum class MenuAction {
     Dance,
     Pluey,
     Speak,
-    ToggleAutoSpeak
+    ToggleAutoSpeak,
+    Watch
 };
 
 struct MenuItem {

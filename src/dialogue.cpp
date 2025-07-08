@@ -240,10 +240,13 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos, bool tv_time)
 {
 	elapsed = dialogueClock.restart().asMilliseconds();
 
+	static float totalVirtualTime = 0.f;
+
+
 	static int lastLineIndex = -1; //elapsed does not correctly reset, so we forcefully reset it as shown below
 
 	if (dialogueLineIndex != lastLineIndex)
-		elapsed = 0;
+		elapsed = 0, totalVirtualTime = 0;
 
 
 	//DEBUG
@@ -272,10 +275,9 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos, bool tv_time)
 	float slowDownFactor = 1.f + ((strings[dialogueLineIndex][textIndex] == '\n') * 5.f) +
 		(isPunctuation(strings[dialogueLineIndex][textIndex]) && !isPunctuation(strings[dialogueLineIndex][textIndex + 1]) * 15.f);
 
-	if (elapsed == 0.f)
-		textIndex = 0;
-	else
-		textIndex = max(textIndex, textIndex + elapsed / (25.f * slowDownFactor));
+	totalVirtualTime += elapsed / (25.f * slowDownFactor);
+	textIndex = std::min<size_t>(strings[dialogueLineIndex].size(), totalVirtualTime);
+
 
 	if (textIndex >= strings[dialogueLineIndex].size())
 		textIndex = strings[dialogueLineIndex].size(), snd_tenna_talk.pause();
