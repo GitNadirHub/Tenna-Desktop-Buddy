@@ -6,14 +6,14 @@
 #include <random>
 #include <chrono>
 using namespace sf;
-using namespace std;
+
 
 SoundBuffer buf_snd_tenna_talk("res/snd/tenna_talk.wav");
 Sound snd_tenna_talk(buf_snd_tenna_talk);
 SoundBuffer buf_snd_lego_city("res/snd/lego_city.wav");
 Sound snd_lego_city(buf_snd_lego_city);
 
-vector<string> strings = {"Hello world!",
+std::vector<std::string> strings = {"Hello world!",
 "Lalala~ \nTime to wake up and \nsmell the pain",
 "HEAR THAT WHINE!?\nTHAT'S YOUR CRT ASKING FOR A WALK!!",
 "BIG [Hyperlink blocked] \nDOWN THE LANE!",
@@ -88,7 +88,7 @@ vector<string> strings = {"Hello world!",
 "You call this a DESKTOP?",
 "He's back...\nWith the eggs.",
 "You ever see a dog\ndo taxes?\nNo?\nLucky you.",
-"I see youre running Windows...bad choice.\nWhat's Windows, anyway?\nSome kind of TV program?",
+"I see youre running Linux...\nWhat's Linux, anyway?\nSome kind of TV program?",
 "You're not real.\nI made you up\nto cope with the static.",
 "I see what you're doing.\nAnd I approve.",
 "Don't think about eggs.\nToo late.",
@@ -190,6 +190,7 @@ vector<string> strings = {"Hello world!",
 "Somebody once told me the world is gonna roll me\nI ain't the sharpest tool in the shed\nShe was looking kinda dumb with her finger and her thumb\nIn the shape of an 'L' on her forehead",
 "These birds are pissing me off\nI am the original         Starwalker",
 "This line is gramatically uncorrenct",
+"PENGUIN."
 };
 
 int dialogueLineIndex = 0;
@@ -201,21 +202,22 @@ Text dialogueText(font);
 
 int legoCityIndex = 0;
 
+
 void initializeDialogue()
 {
-	strings.push_back("Did you know?\nThis game holds exactly\n" + to_string(strings.size() + 2) + " lines.\nI'm one of them.");
-	strings.push_back("This message has\nthe chance of \nappearing " + to_string(100.f / (strings.size() + 1)) + "% \nof the time.\n");
+	strings.push_back("Did you know?\nThis game holds exactly\n" + std::to_string(strings.size() + 2) + " lines.\nI'm one of them.");
+	strings.push_back("This message has\nthe chance of \nappearing " + std::to_string(100.f / (strings.size() + 1)) + "% \nof the time.\n");
 
-	default_random_engine engineRandom;
-	engineRandom.seed(chrono::system_clock::now().time_since_epoch().count());
+	std::default_random_engine engineRandom;
+	engineRandom.seed(std::chrono::system_clock::now().time_since_epoch().count());
 
 	shuffle(strings.begin(), strings.end(), engineRandom);
 
-	legoCityIndex = find(strings.begin(), strings.end(), "A man has fallen into the\nriver in LEGO CITY!\nStart the new rescue helicopter!\nHEY!") - strings.begin();
+	legoCityIndex = std::find(strings.begin(), strings.end(), "A man has fallen into the\nriver in LEGO CITY!\nStart the new rescue helicopter!\nHEY!") - strings.begin();
 
 	dialogueText.setString(strings[0]);
 	dialogueText.setCharacterSize(8);
-	dialogueText.setFillColor(Color::Color(1, 1, 1, 255));
+	dialogueText.setFillColor(Color(1, 1, 1, 255));
 
 	snd_lego_city.setVolume(500.f);
 }
@@ -297,7 +299,7 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos, bool tv_time)
 
 	Text invisibleText = dialogueText;
 
-	string loadedText = strings[dialogueLineIndex].substr(0, textIndex);
+	std::string loadedText = strings[dialogueLineIndex].substr(0, textIndex);
 
 	invisibleText.setString(strings[dialogueLineIndex]); //the final text size
 	dialogueText.setString(loadedText);

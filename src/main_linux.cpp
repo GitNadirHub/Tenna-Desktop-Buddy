@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
-#include <Windows.h>
-#include <tlhelp32.h>
-#include <SFML/audio.hpp>
+#include "LINUX.hpp"
+//#include <tlhelp32.h>
+#include <SFML/Audio.hpp>
 #include "menu.hpp"
 #include "intro.hpp"
 #include "animator.hpp"
@@ -9,8 +9,9 @@
 #include "dialogue.hpp"
 #include <random>
 #include <iostream>
-#include <Dwmapi.h> 
-#pragma comment (lib, "Dwmapi.lib")
+//#include <Dwmapi.h> 
+//#pragma comment (lib, "Dwmapi.lib")
+
 
 bool debugMode = false;
 
@@ -60,19 +61,20 @@ Menu menu;
 
 void initialize(RenderWindow& window)
 {
-
     initializeDialogue();
 
     window.setFramerateLimit(144);
 
-    HWND hwnd = window.getNativeHandle();
-    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE); //makes it on top of anything
-    LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE); // get the current extended window style
-    SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED); // set the extended style to include WS_EX_LAYERED which allows transparency
-    SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY); //make pure black transparent
-
+    //HWND hwnd = window.getNativeHandle();
+    //SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE); //makes it on top of anything
+    //LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE); // get the current extended window style
+    //(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED); // set the extended style to include WS_EX_LAYERED which allows transparency
+   // SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY); //make pure black transparent
+    
+    makeAlwaysOnTop(window);
 
     drawIntro(window);
+    window.resetGLStates();
 
     snd_slide.setVolume(30.f);
     menu.items =
@@ -87,10 +89,14 @@ void initialize(RenderWindow& window)
         {"Watch mode: OFF", MenuAction::Watch},
         {"Pluey", MenuAction::Pluey}, };
 
+    tenna.state = TennaState::idle;
+    tenna.position = {window.getSize().x * 0.5f, window.getSize().y * 0.5f};
+    tenna.sprite.setTexture(t_idle);
+
 }
 
 // if this works imma freak!
-void maintainTransparancy(RenderWindow& window)
+/*void maintainTransparancy(RenderWindow& window)
 { //YOOOOO THANKS MIST LOVE YAAAAAAAAAAA
     static sf::Clock transparancyClock;
 
@@ -111,9 +117,9 @@ void maintainTransparancy(RenderWindow& window)
 
         transparancyClock.restart();
     }
-}
+}*/
 
-bool isProcessRunning(const std::wstring& processName)
+/*bool isProcessRunning(const std::wstring& processName)
 {
     bool found = false;
 
@@ -141,6 +147,7 @@ bool isProcessRunning(const std::wstring& processName)
     CloseHandle(snapshot);
     return found; //note to self: don't use this every frame, as commented above, it does quite a LOOOT
 }
+*/
 
 extern Sound snd_tenna_talk;
 
@@ -179,10 +186,10 @@ void handleProcessInteractions()
     if (processClock.getElapsedTime().asSeconds() >= 5.0f)
     {
         processClock.restart();
-        isAnnoyingDog = isProcessRunning(L"Annoying Dog Desktop Buddy.exe");
+        //isAnnoyingDog = isProcessRunning(L"Annoying Dog Desktop Buddy.exe");
         if (!isAnnoyingDog)
         {
-            isUTorDT = isProcessRunning(L"DELTARUNE.exe") || isProcessRunning(L"Undertale.exe");
+           // isUTorDT = isProcessRunning(L"DELTARUNE.exe") || isProcessRunning(L"Undertale.exe");
         }
     }
 
@@ -283,7 +290,7 @@ void randomState()
 
 void draw(RenderWindow& window)
 {
-    Time elapsed = animationClock.getElapsedTime();
+    sf::Time elapsed = animationClock.getElapsedTime();
 
     float dt = deltaClock.restart().asSeconds();
 
@@ -346,6 +353,8 @@ void draw(RenderWindow& window)
     default:
         break;
     }
+
+
 
     desiredHeight = 266.f;
     scaleCorrection = desiredHeight / tenna.sprite.getTexture().getSize().y;
@@ -439,7 +448,7 @@ void handleLogic(RenderWindow& window)
     static bool lastMousePressed = false;
     static bool isDragging = false;
 
-    Vector2f dragOffset = { 0.f, 0.f };
+    static Vector2f dragOffset = { 0.f, 0.f };
 
 
     static bool menuOpen = 0, rightPressedLastFrame = 0, leftReleasedLastFrame = 0;
@@ -460,168 +469,153 @@ void handleLogic(RenderWindow& window)
 
     flipped = mousePos.x < tenna.position.x; //this is already the origin (tenna.position.x)
 
-    while (const std::optional event = window.pollEvent())
+    while (const std::optional<sf::Event> event = window.pollEvent())
     {
-        bool menuWasOpen = menu.isOpen;
-
         if (event->is<sf::Event::Closed>())
-        {
             window.close();
-        }
 
-        if (event->is<sf::Event::FocusGained>() || event->is<sf::Event::FocusLost>())
-        {
-            HWND hwnd = window.getNativeHandle();
+            bool menuWasOpen = menu.isOpen;
 
-            SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+            coolStuff(window); //very epic
 
-            LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-
-            SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED);
-
-            SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
-        }
-
-        coolStuff(window); //very epic
-
-        // Open menu on new right-click
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) && !rightPressedLastFrame)
-        {
-            menu.open(mousePosF, window.getSize().y);
-            menuOpen = 1;
-        }
-        rightPressedLastFrame = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
-
-
-        if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !leftReleasedLastFrame && menu.isOpen)
-        {
-            MenuAction action = menu.handleClick(mousePosF);
-            menuWasOpen = menu.isOpen;
-            menu.close();
-
-            //HANDLE MENU ACTIONS
-            danceFromMenu = action == MenuAction::Dance; // randomState() logic could stop dance early, even if user-requested
-
-            switch (action)
+            // Open menu on new right-click
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) && !rightPressedLastFrame)
             {
-            case MenuAction::None:
-                if (noneCount++ == 5)
+                menu.open(mousePosF, window.getSize().y);
+                menuOpen = 1;
+            }
+            rightPressedLastFrame = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
+
+
+            if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !leftReleasedLastFrame && menu.isOpen)
+            {
+                MenuAction action = menu.handleClick(mousePosF);
+                menuWasOpen = menu.isOpen;
+                menu.close();
+
+                //HANDLE MENU ACTIONS
+                danceFromMenu = action == MenuAction::Dance; // randomState() logic could stop dance early, even if user-requested
+
+                switch (action)
                 {
-                    snd_dogtrill.play();
-                    noneCount = 0;
-                }
-                break;
-            case MenuAction::Close:
-                tenna.state = TennaState::explode;
-                break;
-            case MenuAction::Tpose:
-                tenna.state = TennaState::tpose;
-                break;
-            case MenuAction::MenuIdle:
-                tenna.state = TennaState::idle;
-                break;
-            case MenuAction::Pluey:
-                plueyActive = !plueyActive;
-                snd_friend_inside_me.play();
-                break;
-            case MenuAction::Speak:
-                dialogueAppearTime = 0; //instantly show dialogue, if not already showing
-                break;
-            case MenuAction::ToggleAutoSpeak:
-                autoSpeak = !autoSpeak;
-                if (autoSpeak)
-                    menu.items[6].label = "Auto speak: ON";
-                else
-                    menu.items[6].label = "Auto speak: OFF";
-                break;
-            case MenuAction::Dance:
-                if (danceCount == 1)
-                {
-                    menu.items[4].label = "Dance: Cane";
-                    danceCount = 2;
-                    tenna.state = TennaState::dance1;
-                }
-                else
-                {
-                    menu.items[4].label = "Dance: Cabbage";
-                    danceCount = 1;
-                    tenna.state = TennaState::dance2;
-                }
-                break;
-            case MenuAction::Watch:
-                if (tenna.state == TennaState::tv_time)
-                {
+                case MenuAction::None:
+                    if (noneCount++ == 5)
+                    {
+                        snd_dogtrill.play();
+                        noneCount = 0;
+                    }
+                    break;
+                case MenuAction::Close:
+                    tenna.state = TennaState::explode;
+                    break;
+                case MenuAction::Tpose:
+                    tenna.state = TennaState::tpose;
+                    break;
+                case MenuAction::MenuIdle:
                     tenna.state = TennaState::idle;
+                    break;
+                case MenuAction::Pluey:
+                    plueyActive = !plueyActive;
+                    snd_friend_inside_me.play();
+                    break;
+                case MenuAction::Speak:
+                    dialogueAppearTime = 0; //instantly show dialogue, if not already showing
+                    break;
+                case MenuAction::ToggleAutoSpeak:
+                    autoSpeak = !autoSpeak;
+                    if (autoSpeak)
+                        menu.items[6].label = "Auto speak: ON";
+                    else
+                        menu.items[6].label = "Auto speak: OFF";
+                    break;
+                case MenuAction::Dance:
+                    if (danceCount == 1)
+                    {
+                        menu.items[4].label = "Dance: Cane";
+                        danceCount = 2;
+                        tenna.state = TennaState::dance1;
+                    }
+                    else
+                    {
+                        menu.items[4].label = "Dance: Cabbage";
+                        danceCount = 1;
+                        tenna.state = TennaState::dance2;
+                    }
+                    break;
+                case MenuAction::Watch:
+                    if (tenna.state == TennaState::tv_time)
+                    {
+                        tenna.state = TennaState::idle;
+                        watchFromMenu = false;
+                        menu.items[7].label = "Watch mode: OFF";
+                    }
+                    else
+                    {
+                        tenna.state = TennaState::tv_time;
+                        watchFromMenu = true;
+                        menu.items[7].label = "Watch mode: ON";
+                    }
+                    break;
+                }
+                if (action != MenuAction::Watch)
+                {
                     watchFromMenu = false;
                     menu.items[7].label = "Watch mode: OFF";
                 }
-                else
+
+            }
+            leftReleasedLastFrame = !sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+
+
+            if (Mouse::isButtonPressed(Mouse::Button::Left) && !menuWasOpen)
+            {
+                if (lastMousePressed)
                 {
-                    tenna.state = TennaState::tv_time;
-                    watchFromMenu = true;
-                    menu.items[7].label = "Watch mode: ON";
+                    isDragging = true;
                 }
-                break;
+                else if (tenna.sprite.getGlobalBounds().contains(mousePosF))
+                {
+                    lastMousePressed = true;
+                    dragOffset = { tenna.position.x - mousePosF.x, tenna.position.y - mousePosF.y };
+                }
             }
-            if (action != MenuAction::Watch)
-            {
-                watchFromMenu = false;
-                menu.items[7].label = "Watch mode: OFF";
-            }
+            else
+                lastMousePressed = false, isDragging = false;
 
         }
-        leftReleasedLastFrame = !sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
-
-
-        if (Mouse::isButtonPressed(Mouse::Button::Left) && !menuWasOpen)
+        if (isDragging)
         {
-            if (lastMousePressed)
-            {
-                isDragging = true;
-            }
-            else if (tenna.sprite.getGlobalBounds().contains(mousePosF))
-            {
-                lastMousePressed = true;
-                dragOffset = { tenna.position.x - mousePosF.x, tenna.position.y - mousePosF.y };
-            }
+
+            tenna.position = mousePosF + dragOffset;
+
+            sf::FloatRect bounds = tenna.sprite.getGlobalBounds();
+            sf::Vector2u winSize = window.getSize();
         }
-        else
-            lastMousePressed = false, isDragging = false;
 
+        if (tenna.position.y < tenna.sprite.getTexture().getSize().y / 2.f)
+            tenna.position.y = tenna.sprite.getTexture().getSize().y / 2.f;
+
+        if (tenna.state != TennaState::tv_time && tenna.position.y > window.getSize().y - tenna.sprite.getTexture().getSize().y / 2.f)
+        {
+            if (snd_slide.getStatus() != Sound::Status::Playing && !isDragging)
+                snd_slide.play();
+            tenna.position.y -= 2.f + sin(timer); //goofy ahh appearance
+
+        }
+
+        tenna.sprite.setPosition(tenna.position);
+
+
+        //timer += 0.025f;
+        //tenna.sprite.setPosition({tenna.position.x + std::sin(timer) * 2.f, tenna.position.y});
+
+        handleProcessInteractions();
+
+        if (tenna.state != lastState)
+        {
+            animationClock.restart();
+        }
     }
-    if (isDragging)
-    {
-
-        tenna.position = mousePosF + dragOffset;
-
-        sf::FloatRect bounds = tenna.sprite.getGlobalBounds();
-        sf::Vector2u winSize = window.getSize();
-    }
-
-    if (tenna.position.y < tenna.sprite.getTexture().getSize().y / 2.f)
-        tenna.position.y = tenna.sprite.getTexture().getSize().y / 2.f;
-
-    if (tenna.state != TennaState::tv_time && tenna.position.y > window.getSize().y - tenna.sprite.getTexture().getSize().y / 2.f)
-    {
-        if (snd_slide.getStatus() != Sound::Status::Playing && !isDragging)
-            snd_slide.play();
-        tenna.position.y -= 2.f + sin(timer); //goofy ahh appearance
-
-    }
-
-    tenna.sprite.setPosition(tenna.position);
-
-
-    //timer += 0.025f;
-    //tenna.sprite.setPosition({tenna.position.x + std::sin(timer) * 2.f, tenna.position.y});
-
-    handleProcessInteractions();
-
-    if (tenna.state != lastState)
-    {
-        animationClock.restart();
-    }
-}
 
 
 
@@ -643,7 +637,9 @@ int main()
     {
         window = RenderWindow(VideoMode({ 1920u - 1u, 1080u - 1u }), "Tenna :D", sf::Style::None);
     }
-     
+
+    window.setPosition(sf::Vector2i(0, 0));
+
     initialize(window);
 
     while (window.isOpen())
@@ -651,11 +647,6 @@ int main()
         handleLogic(window);
         draw(window);
     }
-}
-
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
-{
-    return main();
 }
 
 // You have reached the bottom of the code. You may now rest.

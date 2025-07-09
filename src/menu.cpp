@@ -1,5 +1,5 @@
 #include "menu.hpp"
-
+#include <cmath>
 #include <SFML/Audio.hpp>
 
 using namespace sf; //i give up, im adding this, not gonna make this consistent tho, now it's a mess

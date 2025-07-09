@@ -12,9 +12,32 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(main src/main.cpp "src/menu.cpp" "src/intro.cpp" "src/animator.cpp" "src/resources.cpp" "src/dialogue.cpp")
+message(STATUS "Binary will be at: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+
+# Core source files
+set(SRC_FILES
+    src/menu.cpp
+    src/intro.cpp
+    src/animator.cpp
+    src/resources.cpp
+    src/dialogue.cpp
+)
+
+# Platform-specific main file
+if(WIN32)
+    list(APPEND SRC_FILES src/main_windows.cpp)
+    set(WINDOWS TRUE)
+elseif(UNIX)
+    list(APPEND SRC_FILES src/main_linux.cpp)
+endif()
+
+# Create the executable
+add_executable(main ${SRC_FILES} "src/LINUX.cpp")
 
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics SFML::Audio)
 
-set_target_properties(main PROPERTIES WIN32_EXECUTABLE TRUE)
+# This makes sure your app is built as a GUI app on Windows
+if(WINDOWS)
+    set_target_properties(main PROPERTIES WIN32_EXECUTABLE TRUE)
+endif()

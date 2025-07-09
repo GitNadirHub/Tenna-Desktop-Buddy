@@ -4,10 +4,11 @@
 
 using namespace sf;
 
-Texture t_tv_time[4] = { Texture::Texture(("res/img/tv_time1.png")),
-						Texture::Texture(("res/img/tv_time2.png")),
-						Texture::Texture(("res/img/tv_time3.png")),
-						Texture::Texture(("res/img/tv_time4.png")), };
+Texture tv_time1("res/img/tv_time1.png"), tv_time2("res/img/tv_time2.png"), tv_time3("res/img/tv_time3.png"), tv_time4("res/img/tv_time4.png");
+//These must be not a direct constructor (like Texture::Texture)
+//yes, that worked before, but the Linux build uses g++ sooooo... I have to suffer
+
+Texture t_tv_time[4] = { tv_time1, tv_time2, tv_time3, tv_time4 };
 Sprite tv_time(t_tv_time[0]);
 
 static SoundBuffer buf_snd_boom("res/snd/boom.wav");
@@ -35,6 +36,13 @@ void drawIntro(sf::RenderWindow& window)
 
 	while (window.isOpen()) //INTRO
 	{
+
+
+		while (const std::optional<sf::Event> event = window.pollEvent())
+		{
+			if (event->is<sf::Event::Closed>())
+				window.close();
+		}
 
 		//DEBUG SKIP INTRO
 		if (Keyboard::isKeyPressed(Keyboard::Key::Escape))
