@@ -26,7 +26,7 @@ struct Menu {
     float width = 205.f;
     float itemHeight = 40.f;
 
-    void open(sf::Vector2f pos);
+    void open(sf::Vector2f pos, float windowHeight);
     void close();
     void draw(sf::RenderWindow& window, sf::Font& font);
     MenuAction handleClick(sf::Vector2f mouse);

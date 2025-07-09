@@ -7,9 +7,9 @@ using namespace sf; //i give up, im adding this, not gonna make this consistent 
 SoundBuffer buf_snd_hover("res/snd/select.wav");
 Sound snd_hover(buf_snd_hover);
 
-void Menu::open(sf::Vector2f pos)
+void Menu::open(sf::Vector2f pos, float windowHeight)
 {
-    position = { pos.x, std::min(pos.y, 710.f) };
+    position = { pos.x, std::min(pos.y, (710.f / 1080.f) * windowHeight) };
     isOpen = true;
 } //test
 

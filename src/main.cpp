@@ -58,7 +58,7 @@ float desiredHeight = 128; //desired height, mentioned above rahhhh
 
 Menu menu;
 
-void initialize(RenderWindow &window)
+void initialize(RenderWindow& window)
 {
 
     initializeDialogue();
@@ -72,7 +72,7 @@ void initialize(RenderWindow &window)
     SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY); //make pure black transparent
 
 
-    drawIntro(window); 
+    drawIntro(window);
 
     snd_slide.setVolume(30.f);
     menu.items =
@@ -82,25 +82,25 @@ void initialize(RenderWindow &window)
         {"Idle", MenuAction::MenuIdle},
         {"T-Pose", MenuAction::Tpose},
         {"Dance", MenuAction::Dance},
-		{"Speak", MenuAction::Speak},
+        {"Speak", MenuAction::Speak},
         {"Auto speak: ON", MenuAction::ToggleAutoSpeak },
         {"Watch mode: OFF", MenuAction::Watch},
-        {"Pluey", MenuAction::Pluey},    };
+        {"Pluey", MenuAction::Pluey}, };
 
 }
 
 // if this works imma freak!
-void maintainTransparancy(RenderWindow& window) 
+void maintainTransparancy(RenderWindow& window)
 { //YOOOOO THANKS MIST LOVE YAAAAAAAAAAA
     static sf::Clock transparancyClock;
 
-    if (transparancyClock.getElapsedTime().asMilliseconds() > 100) 
+    if (transparancyClock.getElapsedTime().asMilliseconds() > 100)
     {
         HWND hwnd = window.getNativeHandle();
 
         LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
 
-        if (!(exStyle & WS_EX_LAYERED)) 
+        if (!(exStyle & WS_EX_LAYERED))
         {
             // attempt reapplication of transparancy
             SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED);
@@ -216,7 +216,7 @@ bool handleDialogueLogic()
 {
 
     if (tenna.state != TennaState::idle && tenna.state != TennaState::tpose && tenna.state != TennaState::tv_time
-        && tenna.state!=TennaState::dance1 && tenna.state!=TennaState::dance2)
+        && tenna.state != TennaState::dance1 && tenna.state != TennaState::dance2)
         return false;
     if (dialogueAppearTime != 0 && !autoSpeak)
         return false;
@@ -252,7 +252,7 @@ bool danceFromMenu = 0;
 void randomState()
 {
     if (tenna.state == TennaState::tpose || tenna.state == TennaState::explode || tenna.state == TennaState::freakout)
-		return;
+        return;
 
     if (danceFromMenu)
         return;
@@ -260,13 +260,13 @@ void randomState()
     if (tenna.state == TennaState::tv_time)
         return;
 
-     if (randomStateClock.getElapsedTime().asSeconds() >= 10)
-        {
-            tenna.state = TennaState::idle;
-            secondsTillEvent = randomRangeF(40, 120);
-            randomStateClock.restart();
-            return;
-        }
+    if (randomStateClock.getElapsedTime().asSeconds() >= 10)
+    {
+        tenna.state = TennaState::idle;
+        secondsTillEvent = randomRangeF(40, 120);
+        randomStateClock.restart();
+        return;
+    }
 
     if (secondsTillEvent > randomStateClock.getElapsedTime().asSeconds())
         return;
@@ -325,7 +325,7 @@ void draw(RenderWindow& window)
         break;
     case TennaState::tv_time:
     {
-        static Vector2f desiredPos = { 256.f, window.getSize().y * 1.f - tenna.sprite.getTexture().getSize().y/2.f};
+        static Vector2f desiredPos = { 256.f, window.getSize().y * 1.f - tenna.sprite.getTexture().getSize().y / 2.f };
         Vector2f deltaPos = desiredPos - tenna.position;
         if (deltaPos.y < 1.f)
         {
@@ -370,7 +370,7 @@ void draw(RenderWindow& window)
         }
     }
     if (showDialogue)
-	    dialogueDraw(window, tenna.position, tenna.state==TennaState::tv_time);
+        dialogueDraw(window, tenna.position, tenna.state == TennaState::tv_time);
     window.display();
 }
 
@@ -378,7 +378,7 @@ u_int danceCount = 1;
 
 bool watchFromMenu = false;
 
-void coolStuff(RenderWindow &window)
+void coolStuff(RenderWindow& window)
 {
 
     static Keyboard::Key konamiKeys[] =
@@ -401,7 +401,7 @@ void coolStuff(RenderWindow &window)
     {
         tenna.state = TennaState::tpose;
         snd_friend_inside_me.play();
-		debugMode = !debugMode;
+        debugMode = !debugMode;
         konamiIndex = 0;
     }
     else if (sf::Keyboard::isKeyPressed(konamiKeys[konamiIndex]))
@@ -419,7 +419,7 @@ void coolStuff(RenderWindow &window)
         Keyboard::Key::R
     };
 
-	static int theIndex = 0;
+    static int theIndex = 0;
 
     if (theIndex >= 6)
     {
@@ -432,7 +432,7 @@ void coolStuff(RenderWindow &window)
 
 }
 
-void handleLogic(RenderWindow &window)
+void handleLogic(RenderWindow& window)
 {
 
     static float timer = 0.f;
@@ -469,7 +469,7 @@ void handleLogic(RenderWindow &window)
             window.close();
         }
 
-        if (event->is<sf::Event::FocusGained>() || event->is<sf::Event::FocusLost>()) 
+        if (event->is<sf::Event::FocusGained>() || event->is<sf::Event::FocusLost>())
         {
             HWND hwnd = window.getNativeHandle();
 
@@ -482,12 +482,12 @@ void handleLogic(RenderWindow &window)
             SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
         }
 
-		coolStuff(window); //very epic
+        coolStuff(window); //very epic
 
         // Open menu on new right-click
         if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) && !rightPressedLastFrame)
         {
-            menu.open(mousePosF);
+            menu.open(mousePosF, window.getSize().y);
             menuOpen = 1;
         }
         rightPressedLastFrame = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
@@ -524,8 +524,8 @@ void handleLogic(RenderWindow &window)
                 plueyActive = !plueyActive;
                 snd_friend_inside_me.play();
                 break;
-			case MenuAction::Speak:
-				dialogueAppearTime = 0; //instantly show dialogue, if not already showing
+            case MenuAction::Speak:
+                dialogueAppearTime = 0; //instantly show dialogue, if not already showing
                 break;
             case MenuAction::ToggleAutoSpeak:
                 autoSpeak = !autoSpeak;
@@ -533,7 +533,7 @@ void handleLogic(RenderWindow &window)
                     menu.items[6].label = "Auto speak: ON";
                 else
                     menu.items[6].label = "Auto speak: OFF";
-				break;
+                break;
             case MenuAction::Dance:
                 if (danceCount == 1)
                 {
@@ -573,7 +573,7 @@ void handleLogic(RenderWindow &window)
         leftReleasedLastFrame = !sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
 
-        if (Mouse::isButtonPressed(Mouse::Button::Left)  && !menuWasOpen)
+        if (Mouse::isButtonPressed(Mouse::Button::Left) && !menuWasOpen)
         {
             if (lastMousePressed)
             {
@@ -627,8 +627,23 @@ void handleLogic(RenderWindow &window)
 
 int main()
 {
-    auto window = RenderWindow(VideoMode({1920u - 1u, 1080u - 1u}), "Tenna :D", sf::Style::None);
+    VideoMode desktop = VideoMode::getDesktopMode();
+    Vector2u screenSize = desktop.size;
 
+    RenderWindow window;
+    if (screenSize.x >= 3840u) //4k
+    {
+        window = RenderWindow(VideoMode({ 3840u - 1u, 2160u - 1u }), "Tenna :D", sf::Style::None);
+    }
+    else if (screenSize.x >= 2880u) //whatever the french guy had (2880x1800)
+    {
+        window = RenderWindow(VideoMode({ 2880u - 1u, 1800u - 1u }), "Tenna :D", sf::Style::None);
+    }
+    else //my screen + smaller (cuz it works, somehow)
+    {
+        window = RenderWindow(VideoMode({ 1920u - 1u, 1080u - 1u }), "Tenna :D", sf::Style::None);
+    }
+     
     initialize(window);
 
     while (window.isOpen())

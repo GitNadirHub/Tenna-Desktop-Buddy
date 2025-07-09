@@ -4,9 +4,9 @@
 
 using namespace sf;
 
-Texture t_tv_time[4] = {Texture::Texture(("res/img/tv_time1.png")),
-						Texture::Texture(("res/img/tv_time2.png")), 
-						Texture::Texture(("res/img/tv_time3.png")), 
+Texture t_tv_time[4] = { Texture::Texture(("res/img/tv_time1.png")),
+						Texture::Texture(("res/img/tv_time2.png")),
+						Texture::Texture(("res/img/tv_time3.png")),
 						Texture::Texture(("res/img/tv_time4.png")), };
 Sprite tv_time(t_tv_time[0]);
 
@@ -20,7 +20,7 @@ const unsigned int chunkFrameCount = 24;
 
 Clock animClock;
 
-void drawIntro(sf::RenderWindow &window)
+void drawIntro(sf::RenderWindow& window)
 {
 	int chunk = 0;
 
@@ -30,7 +30,7 @@ void drawIntro(sf::RenderWindow &window)
 	//snd_tv_time.getAttenuation(); //should do something idk
 	snd_tv_time.setVolume(15.f);
 	snd_tv_time.play();
-	
+
 	int prevChunk = -1;
 
 	while (window.isOpen()) //INTRO
@@ -47,7 +47,7 @@ void drawIntro(sf::RenderWindow &window)
 
 
 		auto elapsed = animClock.getElapsedTime();
-		
+
 
 		if (chunk >= 4)
 			break;
@@ -58,7 +58,7 @@ void drawIntro(sf::RenderWindow &window)
 
 
 		int index = animateIndexed(chunkFrameCount, 426, 240, 0.07, elapsed, tv_time);
-		if (index == chunkFrameCount-1)
+		if (index == chunkFrameCount - 1)
 		{
 			chunk++, index = 0;
 			animClock.restart();
