@@ -627,23 +627,16 @@ void handleLogic(RenderWindow& window)
 
 int main()
 {
-    VideoMode desktop = VideoMode::getDesktopMode();
-    Vector2u screenSize = desktop.size;
+    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+    sf::Vector2u screenSize = desktop.size;
 
-    RenderWindow window;
-    if (screenSize.x >= 3840u) //4k
-    {
-        window = RenderWindow(VideoMode({ 3840u - 1u, 2160u - 1u }), "Tenna :D", sf::Style::None);
-    }
-    else if (screenSize.x >= 2880u) //whatever the french guy had (2880x1800)
-    {
-        window = RenderWindow(VideoMode({ 2880u - 1u, 1800u - 1u }), "Tenna :D", sf::Style::None);
-    }
-    else //my screen + smaller (cuz it works, somehow)
-    {
-        window = RenderWindow(VideoMode({ 1920u - 1u, 1080u - 1u }), "Tenna :D", sf::Style::None);
-    }
-     
+    // Create a borderless fullscreen-style window at current resolution
+    sf::RenderWindow window(
+        sf::VideoMode({ screenSize.x, screenSize.y }),
+        "Tenna :D",
+        sf::Style::None
+    );
+
     initialize(window);
 
     while (window.isOpen())

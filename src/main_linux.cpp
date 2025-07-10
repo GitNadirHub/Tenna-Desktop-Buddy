@@ -72,6 +72,7 @@ void initialize(RenderWindow& window)
    // SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY); //make pure black transparent
     
     makeAlwaysOnTop(window);
+//    setWindowTransparent(window);
 
     drawIntro(window);
     window.resetGLStates();
