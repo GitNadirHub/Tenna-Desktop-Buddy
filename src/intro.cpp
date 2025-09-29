@@ -26,7 +26,13 @@ void drawIntro(sf::RenderWindow& window)
 	int chunk = 0;
 
 	tv_time.setScale({ 2.f, 2.f });
-	tv_time.setPosition({ window.getSize().x / 4.f, window.getSize().y / 4.f });
+
+	sf::Vector2u windowSize = window.getSize();
+	tv_time.setPosition(
+		{ windowSize.x / 2.f - (426 * 2.f) / 2.f,
+		windowSize.y / 2.f - (240 * 2.f) / 2.f }
+	);
+
 
 	//snd_tv_time.getAttenuation(); //should do something idk
 	snd_tv_time.setVolume(15.f);

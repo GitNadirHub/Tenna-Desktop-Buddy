@@ -1,3 +1,5 @@
+/// Note: Everything here is messy, and changes are torture
+
 #include <SFML/Graphics.hpp>
 #include <Windows.h>
 #include <tlhelp32.h>
@@ -73,6 +75,8 @@ void initialize(RenderWindow& window)
 
 
     drawIntro(window);
+
+    tenna.position = { window.getSize().x / 2.f, window.getSize().y / 2.f };
 
     snd_slide.setVolume(30.f);
     menu.items =
@@ -352,7 +356,7 @@ void draw(RenderWindow& window)
 
     tenna.sprite.setScale({ (flipped && tenna.state == TennaState::idle ? 1.f : -1.f) * scaleCorrection, scaleCorrection });
 
-    window.clear(sf::Color::Transparent);
+    window.clear(sf::Color(0, 0, 0, 0));
     window.draw(tenna.sprite);
     if (menu.isOpen)
         menu.draw(window, font);
@@ -632,7 +636,7 @@ int main()
 
     // Create a borderless fullscreen-style window at current resolution
     sf::RenderWindow window(
-        sf::VideoMode({ screenSize.x, screenSize.y }),
+        sf::VideoMode({ screenSize.x -10, screenSize.y -10}),
         "Tenna :D",
         sf::Style::None
     );

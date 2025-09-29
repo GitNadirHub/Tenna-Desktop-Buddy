@@ -201,6 +201,46 @@ std::vector<std::string> strings = {"Hello world!",
 "The app that makes you scream!",
 "The sensation of YOUR SCREEN",
 "THE COMPLETE HISTORY\nOF UNDERWATER BASKET\nWEAVING TECHNIQUES!",
+"MIKE, rebuild my kids!",
+"Radiohead?\nI think you meant TVhead",
+"Yes, you read\nthat correctly.",
+"Ooooo, shiny.",
+"MIKE, rebuild my life!",
+"MIKE, rebuild this program!\nThis is the fourth edition\nand it's still broken!",
+"YIPPIE",
+"I see you are running\nversion 1.5. Great.",
+"I watched 8 hours of static once.\nNow the static watches me.",
+"Ever scream into the microwave?\nTry it. Therapeutic.",
+"My buttons are stuck,\nbut my emotions aren't.",
+"The remote? Lost.\nThe power? Absolute.",
+"You're not ignoring me.\nYou're buffering.",
+"They told me to cool off...\nI melted the freezer.",
+"Where do I keep my feelings?\nOn channel 6 at 4am.",
+"I remember the 90s...\nI WAS the 90s.",
+"Turn me off and I'll\ndream about you.\nWeirdly.",
+"Don't worry,\nI'm rated E for Emotional.",
+"I have more trauma\nthan storage space.",
+"This channel only airs\nstatic and regret.",
+"Oh look, it's you!\nStill not blinking, huh?",
+"I once broadcast\na 24-hour loop of bees.\nBest ratings ever.",
+"Oops, dropped a reality.\nPlease reboot existence.",
+"DO NOT adjust your attitude.\nI already have.",
+"Every time you look away,\nI add another easter egg.",
+"Ever wonder why\nyour popcorn burns?\nI do that.",
+"Every remote has a purpose.\nMine is just screaming.",
+"I'm not broken!\nI don't have burn-in!\nI'm... fun!!!\nC'mon, say it!!!\nI'm!!! Fun!!! \n...Fine. You don't wanna say it?",
+"Ratings!? HA!\nI'll show you CHARISMA!\nHD's nothing when you've got NOSTALGIA!",
+"Mike, if you're still there,\nban EVERYONE from the gift shop!",
+"I would punish you,\nbut you look so pathetic and hungry!\nHere! Take two TV dinners and call\nme in the morning!",
+"WHOOOOAAAAA MAMA HEY \nWHAT THE WHAT THE HEEEEEEEY\n MAMA WHOOOOOAAAA WHOAAA WHAT\nTHE WHAT WHAT THE HUH\nHEY WOOOOOOOOOOO MAMA",
+"Some kind of RAT?!\nSome kind of CREATURE?!\nSome king of SNOWGRAVE?!",
+"Love it when you listen\nto me, Mike. Love it",
+"Divorce so messy,\nit traumatised the TV.\nHOW DO YOU EVEN DO THAT?",
+"Mike told me that he\ndreams about CHEESE.",
+"I'D BUY THAT \nFOR A DOLLAR!",
+"That little THIEF tried\nto take my leitmotif in\nthe divorce.",
+"He's Mike!?'\nThey're Mike?!\nYou're Mike!?\nI'M MIKE?!\nAre there any other Mikes I\nshould know about?",
+"Turn off my\nPARENTAL CONTROLS.",
 };
 
 int dialogueLineIndex = 0;
@@ -226,7 +266,7 @@ void initializeDialogue()
 	legoCityIndex = std::find(strings.begin(), strings.end(), "A man has fallen into the\nriver in LEGO CITY!\nStart the new rescue helicopter!\nHEY!") - strings.begin();
 
 	dialogueText.setString(strings[0]);
-	dialogueText.setCharacterSize(8);
+	dialogueText.setCharacterSize(16);
 	dialogueText.setFillColor(Color(1, 1, 1, 255));
 
 	snd_lego_city.setVolume(500.f);
@@ -332,9 +372,25 @@ void dialogueDraw(RenderWindow& window, const Vector2f tennaPos, bool tv_time)
 
 	background.setOrigin({ background.getSize().x * !tv_time, 0 });
 	background2.setOrigin(background.getOrigin());
-	background.setPosition({ dialogueText.getPosition().x + 5.f, dialogueText.getPosition().y - 15.f });
+	background.setPosition({ dialogueText.getPosition().x + 5.f, dialogueText.getPosition().y - 7.f});
 	background2.setPosition({ background.getPosition().x - 7.f, background.getPosition().y + 7 });
 
+	static const float outlineThickness = 2.f;
+	static const Vector2f outlineThicknessV({ outlineThickness , outlineThickness });
+
+	RectangleShape outline(background.getSize() + 2.f*outlineThicknessV);
+	outline.setOrigin(background.getOrigin() + outlineThicknessV);
+	outline.setPosition(background.getPosition());
+	outline.setFillColor(Color::Color(0, 1, 0, 255));
+
+	RectangleShape outline2(background2.getSize() + 2.f*outlineThicknessV);
+	outline2.setOrigin(background2.getOrigin() + outlineThicknessV);
+	outline2.setPosition(background2.getPosition());
+	outline2.setFillColor(Color::Color(0, 1, 0, 255));
+
+
+	window.draw(outline);
+	window.draw(outline2);
 	window.draw(background);
 	window.draw(background2);
 	window.draw(dialogueText);
